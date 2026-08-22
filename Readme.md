@@ -176,6 +176,7 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 
 1. [下载与你 CPU 架构对应的最新发布版 ZIP 压缩包。](https://github.com/Aldaviva/AuthenticatorChooser/releases/latest)
 1. 将压缩包中的 `AuthenticatorChooser.exe` 解压到你选择的目录，例如 `C:\Program Files\AuthenticatorChooser\`。
+    - 发布版为框架依赖的单文件（约 2 MB），首次运行前需安装 [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)。
 1. 双击 `AuthenticatorChooser.exe` 运行程序。
     - 由于它是没有界面的后台程序，不会显示任何窗口，但你可以在任务管理器中搜索 `AuthenticatorChooser` 来确认它在运行。
 1. 使用**以下任意一种**方式注册程序在用户登录时自动运行。如果你还想指定额外的[命令行参数](https://github.com/Aldaviva/AuthenticatorChooser/wiki/Command%E2%80%90line-arguments)（如 `--skip-all-non-security-key-options`），也可以在这里一并设置。
@@ -189,6 +190,7 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 
 1. [Download the latest release ZIP archive for your CPU architecture.](https://github.com/Aldaviva/AuthenticatorChooser/releases/latest)
 1. Extract the `AuthenticatorChooser.exe` file from the ZIP archive to a directory of your choice, like `C:\Program Files\AuthenticatorChooser\`.
+    - The release is a framework-dependent single file (~2 MB); install the [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) before the first run.
 1. Run the program by double-clicking `AuthenticatorChooser.exe`.
     - Nothing will appear because it's a background program with no UI, but you can tell it's running by searching for `AuthenticatorChooser` in Task Manager.
 1. Register the program to run automatically on user logon with **any one** of the following techniques. If you'd like to specify additional [command-line arguments](https://github.com/Aldaviva/AuthenticatorChooser/wiki/Command%E2%80%90line-arguments) like `--skip-all-non-security-key-options`, you can do that here too.
@@ -219,14 +221,14 @@ If no rules are configured, the default behavior (prefer the USB security key) i
     ```
 1. 选择要构建的[版本标签](https://github.com/Aldaviva/AuthenticatorChooser/tags)，或跳过此步以使用 `master` 分支的最新提交。
     ```sh
-    git checkout 0.5.0
+    git checkout 0.5.1
     ```
-1. 构建程序。
+1. 构建并发布程序（`PublishSingleFile=true` 会生成单文件可执行文件，`SelfContained=false` 使发布为框架依赖模式，体积仅约 2 MB，但目标机需安装 [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)）。
     ```ps1
-    dotnet publish
+    dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true
     ```
 
-假设你的 CPU 架构是 x64，程序将编译到以下路径。
+假设你的 CPU 架构是 x64，程序将发布为以下路径的单文件可执行文件。
 ```text
 .\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\AuthenticatorChooser.exe
 ```
@@ -246,14 +248,14 @@ If no rules are configured, the default behavior (prefer the USB security key) i
     ```
 1. Choose one of the [version tags](https://github.com/Aldaviva/AuthenticatorChooser/tags) to build, or skip this step to use the head commit on the `master` branch.
     ```sh
-    git checkout 0.5.0
+    git checkout 0.5.1
     ```
-1. Build the program.
+1. Build and publish the program (`PublishSingleFile=true` produces a single-file executable, and `SelfContained=false` makes the publish framework-dependent at only ~2 MB, but the target machine needs the [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)).
     ```ps1
-    dotnet publish
+    dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true
     ```
 
-The program will be compiled to the following path, assuming your CPU architecture is x64.
+The program will be published to the following path as a single-file executable, assuming your CPU architecture is x64.
 ```text
 .\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\AuthenticatorChooser.exe
 ```

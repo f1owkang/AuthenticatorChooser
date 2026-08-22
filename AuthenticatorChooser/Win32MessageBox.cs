@@ -7,6 +7,7 @@ internal static class Win32MessageBox {
 
     internal enum Kind {
         Information = 0x00000040, // MB_ICONINFORMATION
+        Warning     = 0x00000030, // MB_ICONWARNING
         Error       = 0x00000010, // MB_ICONERROR
     }
 
