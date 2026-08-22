@@ -49,6 +49,48 @@ If this program skips the authenticator choice dialog when you don't want it to,
 
 Even if this program doesn't click the Next button (because an extra choice was present, or you were holding <kbd>Shift</kbd>), it will still highlight the Security Key option and focus the Next button for you, so you can just press <kbd>Enter</kbd> or <kbd>Space</kbd> to choose the Security Key anyway.
 
+### Choosing among third-party passkey providers (priority file)
+
+Windows 25H2 lets password managers like 1Password, Bitwarden, KeePass, and others register as passkey providers, which adds their names as extra options in the "Choose a passkey" dialog. By default this program stops (does not auto-submit) whenever it sees an option that is neither the USB security key nor pairing a new phone, because it can't know whether you'd prefer the password manager.
+
+To choose which option to prefer, create a `priority.txt` file next to the executable (or point to another path with `--priority-file=PATH`). Each line has the form:
+
+```
+Display name as it appears in the dialog = priority number
+```
+
+The higher the number, the more preferred. Three special keys have fixed meanings:
+
+| Key | Meaning |
+|-----|---------|
+| `USB` | The USB security key option |
+| `Pair new phone` | Pairing a new Bluetooth phone |
+| `Use existing phone` | An already-paired Bluetooth phone |
+
+Every other key is matched case-insensitively against the option text as shown in the dialog, so you can add any current or future provider by name. For example, to prefer 1Password when available and fall back to the USB security key otherwise:
+
+```
+1Password = 200
+USB = 100
+```
+
+Or to always prefer the USB security key over any password manager:
+
+```
+USB = 200
+1Password = 100
+Bitwarden = 100
+```
+
+If no rules are configured, the default behavior (prefer the USB security key) is unchanged.
+
+### System tray icon
+
+A system tray icon appears while the program is running. Right-click it to:
+
+- **Enable / disable automatic security key selection** — when disabled, the program leaves all FIDO dialogs completely untouched, which is useful when you want to manually choose another authenticator or a passkey stored in a password manager. Double-clicking the icon also toggles this setting.
+- **Exit** — quits the program, as an alternative to ending it in Task Manager.
+
 ## Requirements
 
 - Windows 11 25H2, 24H2, 23H2, or [22H2 Moment 4](https://support.microsoft.com/en-us/topic/september-26-2023-kb5030310-os-build-22621-2361-preview-363ac1ae-6ea8-41b3-b3cc-22a2a5682faf)

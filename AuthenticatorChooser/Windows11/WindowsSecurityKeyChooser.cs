@@ -22,6 +22,12 @@ public class WindowsSecurityKeyChooser(ChooserOptions options): AbstractSecurity
     public override void chooseUsbSecurityKey(SystemWindow fidoPrompt) {
         options.overallStopwatch.Restart();
         try {
+            // #57: when disabled via the system tray icon, leave all FIDO dialogs completely untouched
+            if (!options.isEnabled) {
+                LOGGER.Trace("Program is disabled via system tray icon, not interacting with window 0x{hwnd:x}", fidoPrompt.HWnd);
+                return;
+            }
+
             if (!isFidoPromptWindow(fidoPrompt)) {
                 LOGGER.Trace("Window 0x{hwnd:x} is not a Windows Security window", fidoPrompt.HWnd);
                 return;

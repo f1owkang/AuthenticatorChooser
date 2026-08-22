@@ -30,6 +30,10 @@ public class Startup {
     [Option("--skip-all-non-security-key-options", CommandOptionType.NoValue)]
     public bool skipAllNonSecurityKeyOptions { get; }
 
+    // #63: a config file that ranks authenticator options (like third-party passkey providers) by priority
+    [Option("--priority-file", CommandOptionType.SingleValue)]
+    public string? priorityFile { get; }
+
     // #30
     [Option("--autosubmit-pin-length", CommandOptionType.SingleValue)]
     public int? autosubmitPinLength { get; }
@@ -91,7 +95,8 @@ public class Startup {
                 logger.Info("{Locales are} {locales}", I18N.LOCALE_NAMES.Count == 1 ? "Locale is" : "Locales are", string.Join(", ", I18N.LOCALE_NAMES));
 
                 using WindowOpeningListener windowOpeningListener = new WindowOpeningListenerImpl();
-                WindowsSecurityKeyChooser   securityKeyChooser    = new(new ChooserOptions(skipAllNonSecurityKeyOptions, autosubmitPinLength));
+                ChooserOptions              options                = new(skipAllNonSecurityKeyOptions, autosubmitPinLength, resolvePriorityFile(priorityFile));
+                WindowsSecurityKeyChooser   securityKeyChooser    = new(options);
 
                 windowOpeningListener.windowOpened += (_, window) => securityKeyChooser.chooseUsbSecurityKey(window);
 
@@ -102,6 +107,9 @@ public class Startup {
                 logger.Info("Waiting for Windows Security FIDO dialog boxes to open");
 
                 _ = I18N.getStrings(I18N.Key.SMARTPHONE); // ensure localization is loaded eagerly
+
+                // #57: system tray icon to enable/disable the program or exit without killing it in Task Manager
+                using SystemTrayIcon trayIcon = new(options);
 
                 Console.CancelKeyPress += (_, args) => {
                     args.Cancel = true;
@@ -142,7 +150,7 @@ public class Startup {
             scheduledTask.Settings.DisallowStartIfOnBatteries = false;
             scheduledTask.Settings.StopIfGoingOnBatteries     = false;
             scheduledTask.Settings.Compatibility              = TaskCompatibility.V2_3;
-            scheduledTask.Actions.Add(Environment.ProcessPath!, skipAllNonSecurityKeyOptions ? "--skip-all-non-security-key-options" : null);
+            scheduledTask.Actions.Add(Environment.ProcessPath!, buildStartupArguments());
             scheduledTask.Triggers.Add(new LogonTrigger { Enabled = true, UserId = domainAndUsername, Delay = TimeSpan.FromSeconds(15) });
             TaskService.Instance.RootFolder.RegisterTaskDefinition($"{PROGRAM_NAME} \u2013 {Environment.UserName}", scheduledTask, TaskCreation.CreateOrUpdate, domainAndUsername, null,
                 TaskLogonType.InteractiveToken);
@@ -167,6 +175,29 @@ public class Startup {
         }
     }
 
+    private static string? resolvePriorityFile(string? configuredPath) {
+        // #63: if the user didn't pass --priority-file, default to priority.txt next to the executable
+        return configuredPath is { Length: > 0 } ? configuredPath : Path.Combine(AppContext.BaseDirectory, PriorityChooser.DEFAULT_FILENAME);
+    }
+
+    /// <summary>
+    /// Builds the command-line arguments to persist in the logon scheduled task, so that the same behavior
+    /// (skip-all, priority file, PIN autosubmit) is restored after a reboot.
+    /// </summary>
+    private string? buildStartupArguments() {
+        List<string> args = [];
+        if (skipAllNonSecurityKeyOptions) {
+            args.Add("--skip-all-non-security-key-options");
+        }
+        if (priorityFile is { Length: > 0 }) {
+            args.Add($"--priority-file=\"{priorityFile}\"");
+        }
+        if (autosubmitPinLength is { } pinLength) {
+            args.Add($"--autosubmit-pin-length={pinLength}");
+        }
+        return args.Count == 0 ? null : string.Join(' ', args);
+    }
+
     private static void showUsage() {
         string processFilename = Path.GetFileName(Environment.ProcessPath)!;
         MessageBox.Show(
@@ -179,6 +210,9 @@ public class Startup {
                 
             {processFilename} --skip-all-non-security-key-options
                 Forces this program to choose the Security Key option even if there are other valid options, such as an already-paired phone or Windows Hello PIN or biometrics. By default, without this option, it will only choose the Security Key if the sole other option is pairing a new phone. This is an aggressive behavior, so if it skips an option you need, remember that you can hold Shift when the FIDO prompt appears to temporarily disable this program and manually choose a different option.
+                
+            {processFilename} --priority-file[=$path]
+                Reads a priority list from $path (or priority.txt next to this executable, if $path is omitted) that ranks which authenticator option to prefer, such as a third-party passkey provider like 1Password, Bitwarden, or KeePass (see issue #63). Each line is 'Display name as shown in the dialog = priority number', with a higher number meaning more preferred. Special keys are 'USB', 'Pair new phone', and 'Use existing phone'. For example, '1Password = 200' and 'USB = 100' would prefer 1Password when available, and fall back to the USB security key otherwise. Without this file, the default behavior (prefer USB) is used.
                 
             {processFilename} --autosubmit-pin-length=$num
                 When Windows prompts you for the FIDO PIN for your USB security key, automatically submit the dialog once you have typed a PIN that is $num characters long (minimum 4), instead of you manually pressing Enter. Remember that enough consecutive incorrect submissions (8 on YubiKeys) will permanently block the security key until you reset it and lose all its FIDO credentials, so type with care. This will neither autosubmit PINs when registering a new FIDO credential, changing your PIN, or entering a Windows Hello PIN (which Windows autosubmits without this program's help).

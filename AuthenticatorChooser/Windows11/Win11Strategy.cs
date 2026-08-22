@@ -22,9 +22,12 @@ public abstract class Win11Strategy(ChooserOptions options): PromptStrategy {
         if (isShiftDown) {
             LOGGER.Info("Shift is pressed, not submitting dialog box");
             return true;
+        } else if (options.priorityFile != null) {
+            // #63: a user-configured priority list is authoritative, so never skip a matched choice
+            return false;
         } else if (!options.skipAllNonSecurityKeyOptions && !authenticatorChoices.All(choice => choice == desiredChoice || choice.nameContainsAny(I18N.getStrings(I18N.Key.SMARTPHONE)))) {
             LOGGER.Info(
-                "Dialog box has a choice that is neither pairing a new phone nor USB security key (such as an existing phone, PIN, or biometrics), skipping because you might want to choose it. You may override this behavior with --skip-all-non-security-key-options.");
+                "Dialog box has a choice that is neither pairing a new phone nor USB security key (such as an existing phone, PIN, biometrics, or a third-party passkey provider), skipping because you might want to choose it. You may override this behavior with --skip-all-non-security-key-options, or define a --priority-file to choose which option to prefer.");
             return true;
         } else {
             return false;
@@ -41,7 +44,17 @@ public abstract class Win11Strategy(ChooserOptions options): PromptStrategy {
         return authenticatorChoices;
     }
 
-    protected static AutomationElement? getSecurityKeyChoice(IEnumerable<AutomationElement> authenticatorChoices) {
+    protected AutomationElement? getSecurityKeyChoice(IEnumerable<AutomationElement> authenticatorChoices) {
+        if (options.priorityFile != null) {
+            // #63: consult the user-configured priority list, falling back to USB if nothing else is preferred
+            AutomationElement? preferred = PriorityChooser.chooseBest(authenticatorChoices as IReadOnlyCollection<AutomationElement> ?? authenticatorChoices.ToList(),
+                PriorityChooser.load(options.priorityFile), I18N.getStrings(I18N.Key.SECURITY_KEY), I18N.getStrings(I18N.Key.SMARTPHONE));
+            if (preferred != null) {
+                LOGGER.Info("Selected authenticator option \"{name}\" according to priority list", preferred.Current.Name);
+            }
+            return preferred;
+        }
+
         return authenticatorChoices.FirstOrDefault(choice => choice.nameContainsAny(I18N.getStrings(I18N.Key.SECURITY_KEY)));
     }
 
