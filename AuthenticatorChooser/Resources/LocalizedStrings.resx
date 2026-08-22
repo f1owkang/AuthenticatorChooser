@@ -174,4 +174,10 @@
   <data name="trayAuthenticatorUseExistingPhone" xml:space="preserve">
     <value>Use an existing phone</value>
   </data>
+  <data name="trayAutostartOnLogon" xml:space="preserve">
+    <value>Start automatically at logon</value>
+  </data>
+  <data name="autostartRegisterFailed" xml:space="preserve">
+    <value>Failed to register the program to start automatically at logon.</value>
+  </data>
 </root>

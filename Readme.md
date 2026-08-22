@@ -140,18 +140,20 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 
 ### 系统托盘图标 / System tray icon
 
-**中文**：程序运行期间会出现系统托盘图标。右键点击它，可以：
+**中文**：程序运行期间会出现系统托盘图标（采用 Windows 11 Fluent 风格，支持浅色/深色主题与圆角）。右键点击它，可以：
 
 - **启用 / 禁用自动选择安全密钥** —— 禁用后，程序完全不触碰任何 FIDO 弹窗，当你需要手动选择其他认证器或密码管理器中保存的 passkey 时很有用。双击图标也可切换此设置。
 - **首选验证方法（Preferred authenticator）** —— 子菜单中列出了本系统当前可用的验证方法（自动从系统获取），包括「默认（自动）」「USB 安全密钥」「配对手机」「使用已有手机」，以及系统中已注册的第三方 passkey 提供商（如 1Password、Bitwarden）。选择后，程序在 FIDO 弹窗出现时会优先选择该方法。与 `--priority-file` 配合使用时可覆盖其优先级。
 - **语言（Language）** —— 子菜单中可切换界面语言，支持「跟随系统语言」、English、简体中文、繁體中文，切换后立即生效，无需重启。
+- **开机自启（Start automatically at logon）** —— 勾选后在 Windows 登录时自动以最高权限启动本程序（创建计划任务）；取消勾选即移除。
 - **退出（Exit）** —— 退出程序，作为在任务管理器中结束进程的替代方式。
 
-**English**: A system tray icon appears while the program is running. Right-click it to:
+**English**: A system tray icon (Windows 11 Fluent style, with rounded corners and light/dark theme support) appears while the program is running. Right-click it to:
 
 - **Enable / disable automatic security key selection** — when disabled, the program leaves all FIDO dialogs completely untouched, which is useful when you want to manually choose another authenticator or a passkey stored in a password manager. Double-clicking the icon also toggles this setting.
 - **Preferred authenticator** — this submenu lists the authentication methods currently available on this system (auto-enumerated from the system): "Default (automatic)", "USB security key", "Pair a new phone", "Use an existing phone", plus any third-party passkey providers registered on the system (such as 1Password, Bitwarden). Picking one makes the program prefer that method when a FIDO prompt appears.
 - **Language** — this submenu switches the UI language at runtime with immediate effect, without restarting: "Follow system language", English, 简体中文, 繁體中文.
+- **Start automatically at logon** — checked when the program is registered (as a scheduled task) to start at Windows logon with highest privileges; uncheck to remove it.
 - **Exit** — quits the program, as an alternative to ending it in Task Manager.
 
 ## 系统要求 / Requirements

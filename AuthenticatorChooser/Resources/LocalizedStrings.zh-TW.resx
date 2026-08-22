@@ -174,4 +174,10 @@
   <data name="trayAuthenticatorUseExistingPhone" xml:space="preserve">
     <value>使用既有手機</value>
   </data>
+  <data name="trayAutostartOnLogon" xml:space="preserve">
+    <value>登入時自動啟動</value>
+  </data>
+  <data name="autostartRegisterFailed" xml:space="preserve">
+    <value>無法註冊程式於登入時自動啟動。</value>
+  </data>
 </root>

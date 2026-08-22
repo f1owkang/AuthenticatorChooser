@@ -157,7 +157,7 @@
     <value>语言</value>
   </data>
   <data name="trayFollowSystemLanguage" xml:space="preserve">
-    <value>跟随系统语言</value>
+    <value>跟随系统</value>
   </data>
   <data name="trayAuthenticator" xml:space="preserve">
     <value>首选验证方法</value>
@@ -173,5 +173,11 @@
   </data>
   <data name="trayAuthenticatorUseExistingPhone" xml:space="preserve">
     <value>使用已有手机</value>
+  </data>
+  <data name="trayAutostartOnLogon" xml:space="preserve">
+    <value>开机自启</value>
+  </data>
+  <data name="autostartRegisterFailed" xml:space="preserve">
+    <value>无法注册程序开机自启。</value>
   </data>
 </root>

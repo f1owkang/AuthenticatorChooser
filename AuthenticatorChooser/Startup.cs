@@ -4,7 +4,6 @@ using ManagedWinapi.Windows;
 using McMaster.Extensions.CommandLineUtils;
 using McMaster.Extensions.CommandLineUtils.Conventions;
 using Microsoft.Win32;
-using Microsoft.Win32.TaskScheduler;
 using NLog;
 using System.Reflection;
 using System.Security.Principal;
@@ -136,66 +135,18 @@ public class Startup {
     }
 
     private bool registerAsStartupProgram() {
-        try {
-            string domainAndUsername = CURRENT_USER.Name;
-
-            TaskDefinition scheduledTask = TaskService.Instance.NewTask();
-            scheduledTask.RegistrationInfo.Author = "Ben Hutchison";
-            scheduledTask.RegistrationInfo.Date   = DateTime.Now;
-            scheduledTask.RegistrationInfo.Description =
-                $"{PROGRAM_NAME} is a background program that skips the phone pairing option and chooses the USB security key in Windows FIDO/WebAuthn prompts. \n\nThis scheduled task is necessary to start {PROGRAM_NAME} for you on login with elevated permissions, which are required to interact with the Windows 11 FIDO prompts beginning in January 2026. \n\nhttps://github.com/Aldaviva/{PROGRAM_NAME}";
-            scheduledTask.Principal.RunLevel                  = TaskRunLevel.Highest; // #44: CredentialUIBroker runs with UIAccess integrity level, which is higher than the default Medium level
-            scheduledTask.Settings.Enabled                    = true;
-            scheduledTask.Settings.ExecutionTimeLimit         = TimeSpan.Zero;
-            scheduledTask.Settings.DisallowStartIfOnBatteries = false;
-            scheduledTask.Settings.StopIfGoingOnBatteries     = false;
-            scheduledTask.Settings.Compatibility              = TaskCompatibility.V2_3;
-            scheduledTask.Actions.Add(Environment.ProcessPath!, buildStartupArguments());
-            scheduledTask.Triggers.Add(new LogonTrigger { Enabled = true, UserId = domainAndUsername, Delay = TimeSpan.FromSeconds(15) });
-            TaskService.Instance.RootFolder.RegisterTaskDefinition($"{PROGRAM_NAME} \u2013 {Environment.UserName}", scheduledTask, TaskCreation.CreateOrUpdate, domainAndUsername, null,
-                TaskLogonType.InteractiveToken);
-
-            // #44: Remove the old 0.4.0 registry startup entry, which is no longer adequate. This removal avoids both starting twice and showing a UAC prompt on each login.
-            using RegistryKey? userRun = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
-            if (userRun is not null) {
-                try {
-                    userRun.DeleteValue(PROGRAM_NAME, true);
-                    logger!.Info("Removed old registry startup entry, which has now been replaced with a Scheduled Task.");
-                } catch (ArgumentException) {
-                    // value had already been removed from the registry before this execution
-                }
-            }
-
+        if (AutostartManager.enable(new ChooserOptions(skipAllNonSecurityKeyOptions, autosubmitPinLength, resolvePriorityFile(priorityFile)))) {
             MessageBox.Show($"{PROGRAM_NAME} is now running in the background, and will also start automatically each time you log in to Windows.", PROGRAM_NAME, MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             return true;
-        } catch (Exception e) when (e is not OutOfMemoryException) {
-            MessageBox.Show($"Failed to register {PROGRAM_NAME} to start automatically on Windows logon: {e.GetType().Name} {e.Message}", PROGRAM_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return false;
         }
+        MessageBox.Show($"Failed to register {PROGRAM_NAME} to start automatically on Windows logon.", PROGRAM_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return false;
     }
 
     private static string? resolvePriorityFile(string? configuredPath) {
         // #63: if the user didn't pass --priority-file, default to priority.txt next to the executable
         return configuredPath is { Length: > 0 } ? configuredPath : Path.Combine(AppContext.BaseDirectory, PriorityChooser.DEFAULT_FILENAME);
-    }
-
-    /// <summary>
-    /// Builds the command-line arguments to persist in the logon scheduled task, so that the same behavior
-    /// (skip-all, priority file, PIN autosubmit) is restored after a reboot.
-    /// </summary>
-    private string? buildStartupArguments() {
-        List<string> args = [];
-        if (skipAllNonSecurityKeyOptions) {
-            args.Add("--skip-all-non-security-key-options");
-        }
-        if (priorityFile is { Length: > 0 }) {
-            args.Add($"--priority-file=\"{priorityFile}\"");
-        }
-        if (autosubmitPinLength is { } pinLength) {
-            args.Add($"--autosubmit-pin-length={pinLength}");
-        }
-        return args.Count == 0 ? null : string.Join(' ', args);
     }
 
     private static void showUsage() {
