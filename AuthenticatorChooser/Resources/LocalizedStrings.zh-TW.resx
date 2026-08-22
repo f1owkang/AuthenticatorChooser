@@ -180,4 +180,79 @@
   <data name="autostartRegisterFailed" xml:space="preserve">
     <value>無法註冊程式於登入時自動啟動。</value>
   </data>
+  <data name="traySecurityKeyPin" xml:space="preserve">
+    <value>PIN 設定</value>
+  </data>
+  <data name="trayPinCache" xml:space="preserve">
+    <value>PIN 快取</value>
+  </data>
+  <data name="trayTtlSubmenu" xml:space="preserve">
+    <value>過期時間（TTL）</value>
+  </data>
+  <data name="trayTtl5Min" xml:space="preserve">
+    <value>5 分鐘</value>
+  </data>
+  <data name="trayTtl10Min" xml:space="preserve">
+    <value>10 分鐘</value>
+  </data>
+  <data name="trayTtl30Min" xml:space="preserve">
+    <value>30 分鐘</value>
+  </data>
+  <data name="trayTtl1Hour" xml:space="preserve">
+    <value>1 小時</value>
+  </data>
+  <data name="trayTtlUntilExit" xml:space="preserve">
+    <value>直到結束</value>
+  </data>
+  <data name="trayPinClearOnLock" xml:space="preserve">
+    <value>鎖定時失效</value>
+  </data>
+  <data name="trayPinClearOnSleep" xml:space="preserve">
+    <value>睡眠時失效</value>
+  </data>
+  <data name="trayPinClearOnHibernate" xml:space="preserve">
+    <value>休眠時失效</value>
+  </data>
+  <data name="pinDialogTitle" xml:space="preserve">
+    <value>快取安全金鑰 PIN</value>
+  </data>
+  <data name="pinDialogPin" xml:space="preserve">
+    <value>PIN：</value>
+  </data>
+  <data name="pinDialogConfirm" xml:space="preserve">
+    <value>確認 PIN：</value>
+  </data>
+  <data name="pinDialogHint" xml:space="preserve">
+    <value>僅在記憶體中加密快取（從不寫入磁碟），程式執行期間有效。</value>
+  </data>
+  <data name="pinDialogCacheButton" xml:space="preserve">
+    <value>快取 PIN</value>
+  </data>
+  <data name="pinDialogClearButton" xml:space="preserve">
+    <value>清除已快取 PIN</value>
+  </data>
+  <data name="pinDialogCancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="pinDialogEmpty" xml:space="preserve">
+    <value>PIN 不能為空。</value>
+  </data>
+  <data name="pinDialogMismatch" xml:space="preserve">
+    <value>兩次輸入的 PIN 不一致。</value>
+  </data>
+  <data name="pinDialogMultiKey" xml:space="preserve">
+    <value>偵測到多把安全金鑰。PIN 快取僅在單把金鑰時安全（快取的某把金鑰 PIN 可能被輸入到另一把金鑰而導致其被鎖死）。請移除多餘金鑰後重試。</value>
+  </data>
+  <data name="pinDialogError" xml:space="preserve">
+    <value>無法在記憶體中加密 PIN。</value>
+  </data>
+  <data name="pinDialogTtl" xml:space="preserve">
+    <value>快取的 PIN 將在 {0} 秒後過期。</value>
+  </data>
+  <data name="pinDialogTtlUnlimited" xml:space="preserve">
+    <value>快取的 PIN 在程式結束前一直有效。</value>
+  </data>
+  <data name="pinDialogTtlRemaining" xml:space="preserve">
+    <value>快取的 PIN 將於 {0} 後過期。</value>
+  </data>
 </root>

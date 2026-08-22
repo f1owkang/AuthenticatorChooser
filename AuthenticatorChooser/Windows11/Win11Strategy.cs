@@ -1,4 +1,5 @@
 using System.Windows.Automation;
+using System.Windows.Forms;
 using Unfucked;
 
 namespace AuthenticatorChooser.Windows11;
@@ -77,6 +78,40 @@ public abstract class Win11Strategy(ChooserOptions options): PromptStrategy {
     protected static async Task<AutomationElement?> findPinField(AutomationElement outerScrollViewer, CancellationToken ct) =>
         await outerScrollViewer.WaitForFirstAsync(TreeScope.Descendants, new PropertyCondition(AutomationElement.IsPasswordProperty, true),
             TimeSpan.FromMinutes(3), ct);
+
+    /// <summary>
+    /// If a PIN was cached with <c>--set-pin</c> and is still within its cache TTL, fills it into the Windows Security
+    /// PIN prompt and submits the dialog, so the user doesn't have to type the PIN on every assertion (modeled on
+    /// gpg-agent's passphrase cache). Returns <see langword="true"/> when the dialog was auto-filled and submitted.
+    /// <paramref name="pinField"/> may already be known (e.g. from <see cref="findPinField"/>); otherwise it is looked
+    /// up under <paramref name="outerScrollViewer"/>.
+    /// </summary>
+    protected async Task<bool> tryAutofillPin(AutomationElement fidoEl, AutomationElement? pinField, AutomationElement? outerScrollViewer = null) {
+        if (PinCache.tryGetCached() is not { } pin) {
+            return false;
+        }
+        pinField ??= outerScrollViewer is null ? null : await findPinField(outerScrollViewer, Startup.EXITING);
+        if (pinField is null) {
+            return false;
+        }
+
+        try {
+            pinField.SetFocus();
+            ((ValuePattern) pinField.GetCurrentPattern(ValuePattern.Pattern)).SetValue(pin);
+            LOGGER.Info("Auto-filled cached security key PIN {0:N3} sec after dialog appeared", options.overallStopwatch.Elapsed.TotalSeconds);
+        } catch (Exception e) when (e is not OutOfMemoryException) {
+            // Some password-field providers reject UIA SetValue; fall back to keyboard injection into the focused field.
+            LOGGER.Warn("UIA SetValue for the PIN field failed ({message}), injecting via keyboard instead", e.Message);
+            SendKeys.SendWait(pin);
+        }
+
+        if (fidoEl.FindFirst(TreeScope.Children, NEXT_BUTTON_CONDITION) is { } okButton) {
+            ((InvokePattern) okButton.GetCurrentPattern(InvokePattern.Pattern)).Invoke();
+            LOGGER.Info("Submitted security key PIN {0:N3} sec after dialog appeared", options.overallStopwatch.Elapsed.TotalSeconds);
+            return true;
+        }
+        return false;
+    }
 
     protected void autosubmitPin(AutomationElement fidoEl, AutomationElement outerScrollViewer, AutomationElement? pinField = null) {
         CancellationTokenSource windowClosed = new();

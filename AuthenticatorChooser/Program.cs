@@ -26,4 +26,11 @@ public static class Program {
         Application.Run(new TrayApplicationContext(options));
     }
 
+    /// <summary>Shows the modal dialog that caches/clears the security key PIN in memory (used by <c>--set-pin</c>).</summary>
+    public static void setupPin() {
+        ApplicationConfiguration.Initialize();
+        using var dialog = new PinSetupDialog();
+        dialog.ShowDialog();
+    }
+
 }

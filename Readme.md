@@ -70,6 +70,28 @@ If this program skips the authenticator choice dialog when you don't want it to,
 
 Even if this program doesn't click the Next button (because an extra choice was present, or you were holding <kbd>Shift</kbd>), it will still highlight the Security Key option and focus the Next button for you, so you can just press <kbd>Enter</kbd> or <kbd>Space</kbd> to choose the Security Key anyway.
 
+### 自动填 PIN / Auto-filling the security key PIN
+
+**中文**：自 2025 年 9 月起，Windows 11 的更新要求 FIDO2 安全密钥在每次认证时都输入 PIN。如果你希望程序在缓存有效期内自动替你填入并提交 PIN，可以**右键系统托盘图标 → 点击「安全密钥 PIN」**（勾选表示已缓存），或在命令行运行一次：
+
+```ps1
+.\AuthenticatorChooser --set-pin
+```
+
+两者都会打开同一个对话框，在其中输入你的安全密钥 PIN（只通过对话框输入，不会出现在命令行或进程列表中）。PIN 会被**加密后缓存在内存中**（使用 Windows `CryptProtectMemory`，进程级密钥，内存中不保留明文；也从不写入磁盘），并在 `--pin-cache-ttl` 秒内有效（默认 600 秒，参考 gpg-agent 的 `default-cache-ttl`）；传 `--pin-cache-ttl=0` 表示缓存一直有效直到程序重启。由于只存内存，程序每次重启后都需要重新缓存。该功能只适用于**单把安全密钥**——如果检测到插着多把密钥，程序会拒绝缓存，以免把某把密钥的 PIN 输进另一把密钥导致其被锁死。要清除缓存的 PIN，再次打开该对话框并选择「清除已缓存 PIN」。此外，你还可以传 `--pin-clear-on-lock`、`--pin-clear-on-sleep`、`--pin-clear-on-hibernate`，让程序分别在 Windows 锁屏、睡眠、休眠时自动清除缓存的 PIN（睡眠与休眠在系统层面都是同一个挂起事件，因此这两个选项行为相同），程序退出时也会自动清零缓存。注意：即使内存加密，任何能操作这台电脑的人仍可能在你使用密钥期间借它完成认证，请自行权衡（更完整的风险说明见[安全](#安全--security)一节的免责声明）。
+
+另外，如果你不想让程序替你填写 PIN，而只希望自己输入完成后省去按回车，可以传入 `--autosubmit-pin-length=$num`：当 Windows 弹出安全密钥的 FIDO2 PIN 输入框时，程序会在你输入满 $num 个字符后自动提交该对话框（最少 4 位）。请谨慎输入——连续输错足够多次（YubiKey 为 8 次）会永久锁定安全密钥，直到你重置它并丢失全部 FIDO 凭据。该选项不会在注册新 FIDO 凭据、修改 PIN 或输入 Windows Hello PIN（Windows 会自行自动提交）时自动提交。
+
+**English**: Since September 2025, Windows 11 updates require a FIDO2 security key to be unlocked with its PIN on every assertion. If you'd like the program to fill in and submit the PIN for you while it is cached, **right-click the system tray icon and choose "Security key PIN"** (checked when a PIN is cached), or run this once on the command line:
+
+```ps1
+.\AuthenticatorChooser --set-pin
+```
+
+Both open the same dialog, where you type your security key PIN (it is only ever entered in the dialog, never on a command line). The PIN is cached **encrypted in memory** (Windows `CryptProtectMemory`, a per-process key, so the plaintext never sits in memory, and it is never written to disk), valid for `--pin-cache-ttl` seconds (default 600 s, mirroring gpg-agent's `default-cache-ttl`); pass `--pin-cache-ttl=0` to keep it valid until the program restarts. Because it is memory-only, you must cache the PIN again after every restart. This only works with a **single security key** — if more than one key is attached, the program refuses to cache the PIN rather than risk entering one key's PIN into another and locking it out. To clear the cached PIN, open the dialog again and choose "Clear cached PIN". You can also pass `--pin-clear-on-lock`, `--pin-clear-on-sleep`, or `--pin-clear-on-hibernate` to have the program automatically forget the cached PIN when Windows locks, sleeps, or hibernates (sleep and hibernation both surface as the same suspend event, so those two options behave identically), and the cache is zeroed when the program exits. Note that even encrypted in memory, anyone who can operate this computer as you could use your key while you are authenticated; weigh the trade-off before enabling it (see the disclaimer in the [Security](#安全--security) section for a fuller statement of the risks).
+
+Separately, if you'd rather keep typing the PIN yourself but skip the final <kbd>Enter</kbd>, pass `--autosubmit-pin-length=$num`: when Windows shows the FIDO2 PIN prompt for your USB security key, the program auto-submits the dialog once you have typed $num characters (minimum 4). Type with care — enough consecutive wrong submissions (8 on YubiKeys) will permanently block the security key until you reset it and lose all its FIDO credentials. It will neither auto-submit when registering a new FIDO credential, changing your PIN, nor when entering a Windows Hello PIN (which Windows auto-submits on its own).
+
 ### 第三方 passkey 提供商（优先级文件）/ Choosing among third-party passkey providers (priority file)
 
 **中文**：Windows 25H2 允许 1Password、Bitwarden、KeePass 等密码管理器注册为 passkey 提供商，从而在「选择通行密钥」弹窗中增加额外选项。默认情况下，本程序一旦发现某个选项既不是 USB 安全密钥、也不是配对手机，就会停止自动提交——因为它无法判断你是否更想使用密码管理器。
@@ -142,11 +164,17 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 
 **中文**：程序运行期间会在系统托盘中显示一个图标。右键点击它，可以：
 
-- **启用 / 禁用自动选择安全密钥** —— 禁用后，程序完全不触碰任何 FIDO 弹窗，当你需要手动选择其他认证器或密码管理器中保存的 passkey 时很有用。双击图标也可切换此设置。
+- **启用 / 禁用自动选择安全密钥** —— 禁用后，程序完全不触碰任何 FIDO 弹窗，当你需要手动选择其他认证器或密码管理器中保存的 passkey 时很有用。
 - **首选验证方法（Preferred authenticator）** —— 子菜单中列出了本系统当前可用的验证方法（自动从系统获取），包括「默认（自动）」「USB 安全密钥」「配对手机」「使用已有手机」，以及系统中已注册的第三方 passkey 提供商（如 1Password、Bitwarden）。选择后，程序在 FIDO 弹窗出现时会优先选择该方法。与 `--priority-file` 配合使用时可覆盖其优先级。
 - **语言（Language）** —— 子菜单中可切换界面语言，支持「跟随系统语言」、English、简体中文、繁體中文，切换后立即生效，无需重启。
 - **开机自启（Start automatically at logon）** —— 勾选后在 Windows 登录时自动以最高权限启动本程序（创建计划任务）；取消勾选即移除。
+- **PIN 缓存（PIN cache）** —— 一级菜单中的高频操作；勾选表示已缓存安全密钥 PIN，点击打开对话框缓存或清除 PIN（加密后仅存内存、不落盘，详见上文「自动填 PIN」）。
+- **PIN 设置（PIN settings）** —— 一个分组子菜单：
+  - **过期时间（TTL，Expiration）** —— 单选预设：5 分钟 / 10 分钟（默认）/ 30 分钟 / 1 小时 / 直到退出。
+  - **锁屏时失效 / 睡眠时失效 / 休眠时失效（Forget on lock / sleep / hibernate）** —— 三个开关，勾选后分别在 Windows 锁屏、睡眠、休眠时自动清除缓存的 PIN。
 - **退出（Exit）** —— 退出程序，作为在任务管理器中结束进程的替代方式。
+
+以下偏好都会持久化到 `%APPDATA%\AuthenticatorChooser\settings.json`，重启后自动恢复：界面语言、「自动密钥」开关、首选验证方法、PIN 缓存 TTL 与锁屏/睡眠/休眠失效开关。PIN 本身从不写入磁盘。
 
 **English**: A system tray icon appears while the program is running. Right-click it to:
 
@@ -154,7 +182,13 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 - **Preferred authenticator** — this submenu lists the authentication methods currently available on this system (auto-enumerated from the system): "Default (automatic)", "USB security key", "Pair a new phone", "Use an existing phone", plus any third-party passkey providers registered on the system (such as 1Password, Bitwarden). Picking one makes the program prefer that method when a FIDO prompt appears.
 - **Language** — this submenu switches the UI language at runtime with immediate effect, without restarting: "Follow system language", English, 简体中文, 繁體中文.
 - **Start automatically at logon** — checked when the program is registered (as a scheduled task) to start at Windows logon with highest privileges; uncheck to remove it.
+- **PIN cache** — a high-frequency action in the top-level menu; checked when a security key PIN is cached, and clicking it opens the dialog that caches or clears the PIN (encrypted in memory only, never on disk; see "Auto-filling the security key PIN" above).
+- **PIN settings** — a grouped submenu:
+  - **Expiration (TTL)** — a single-select preset: 5 minutes / 10 minutes (default) / 30 minutes / 1 hour / until exit.
+  - **Forget on lock / sleep / hibernate** — three toggles that clear the cached PIN when Windows locks, sleeps, or hibernates.
 - **Exit** — quits the program, as an alternative to ending it in Task Manager.
+
+The following preferences are persisted to `%APPDATA%\AuthenticatorChooser\settings.json` and restored after a restart: the UI language, the automatic-selection toggle, the preferred authenticator, and the PIN cache TTL and lock/sleep/hibernate toggles. The PIN itself is never written to disk.
 
 ## 系统要求 / Requirements
 
@@ -200,6 +234,26 @@ If no rules are configured, the default behavior (prefer the USB security key) i
         ```
     - Manually add a new task to Task Scheduler that starts `AuthenticatorChooser.exe` as your user with highest privileges when you log in to Windows
 
+## 安全 / Security
+
+**中文**：本程序必须**始终以管理员权限运行**，才能与 Windows 安全中心（`CredentialUIBroker.exe`，以更高的完整性级别运行）的 FIDO 弹窗交互——这是 Windows 用户界面特权隔离（UIPI）的要求，无法在普通权限下工作。
+
+由于程序以最高权限常驻后台，请把它部署到**受保护目录**（例如 `C:\Program Files\AuthenticatorChooser\`），不要放在低权限用户可写的目录，否则低权限用户可能利用 DLL 搜索顺序劫持加载恶意 DLL，或篡改 `priority.txt` 把认证重定向到恶意提供商。程序在启动时会检查部署目录是否可被低权限用户写入，并在日志中警告；`priority.txt` 的属主若不是你本人或本地管理员，程序会忽略该文件。
+
+程序只会与**微软签名、位于 System32 的系统进程**（`CredentialUIBroker.exe`、`Consent.exe` 等）持有的 FIDO 弹窗交互，其他进程无法伪造弹窗来窃取缓存的安全密钥 PIN。
+
+**English**: This program must **always run as administrator** to interact with the Windows Security FIDO dialogs, which are hosted by `CredentialUIBroker.exe` at a higher integrity level — Windows User Interface Privilege Isolation (UIPI) requires this, and it cannot work unelevated.
+
+Because it runs elevated in the background, install it in a **protected directory** (for example `C:\Program Files\AuthenticatorChooser\`), not in a directory writable by lower-privileged users, or a lower-privileged user could hijack DLL search order to load a malicious DLL, or tamper with `priority.txt` to redirect authentication to a malicious provider. On startup the program checks whether its directory is writable by unprivileged users and warns in the log; a `priority.txt` whose owner is neither you nor a local administrator is ignored.
+
+The program only interacts with FIDO dialogs owned by **Microsoft-signed system processes in System32** (`CredentialUIBroker.exe`, `Consent.exe`, etc.), so other processes cannot spoof a prompt to steal the cached security key PIN.
+
+**免责声明 / Disclaimer**
+
+**中文**：本程序（包括其安全密钥相关功能，如 PIN 缓存、自动填 PIN、自动提交 PIN）按「现状」提供，不附带任何明示或暗示的保证。**缓存 PIN 存在固有风险**：即使 PIN 仅加密保存在内存中、从不写入磁盘，任何能操作这台电脑的人或进程，都可能在你保持认证状态期间使用该缓存 PIN 完成未经授权的认证；自动填 PIN 或自动提交也可能因输入错误导致安全密钥被连续锁定。使用本程序即表示你理解并**自行承担全部风险**，包括但不限于未授权认证、认证失败、安全密钥被锁死、数据丢失或财产损失。**仓库作者对因使用本程序而产生的任何后果不承担责任。**
+
+**English**: This program (including its security-key features such as PIN caching, PIN auto-fill, and PIN auto-submit) is provided "as is", without warranty of any kind, express or implied. **Caching a PIN carries inherent risk**: even though the PIN is only ever stored encrypted in memory and never written to disk, any person or process that can operate this computer could use the cached PIN to authenticate without your authorization while you remain authenticated; auto-filling or auto-submitting a PIN could also lock out the security key after too many wrong entries. By using this program you acknowledge and **assume all risk**, including but not limited to unauthorized authentication, authentication failures, a locked-out security key, data loss, or financial damage. **The repository author accepts no responsibility for any consequence of using this program.**
+
 ## 演示 / Demo
 
 **中文**：想用示例 FIDO 认证弹窗测试，请访问 [WebAuthn.io](https://webauthn.io) 并点击 **Authenticate** 按钮。
@@ -221,7 +275,7 @@ If no rules are configured, the default behavior (prefer the USB security key) i
     ```
 1. 选择要构建的[版本标签](https://github.com/Aldaviva/AuthenticatorChooser/tags)，或跳过此步以使用 `master` 分支的最新提交。
     ```sh
-    git checkout 0.5.1
+    git checkout 0.6.0
     ```
 1. 构建并发布程序（`PublishSingleFile=true` 会生成单文件可执行文件，`SelfContained=false` 使发布为框架依赖模式，体积仅约 2 MB，但目标机需安装 [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)）。
     ```ps1
@@ -248,7 +302,7 @@ If no rules are configured, the default behavior (prefer the USB security key) i
     ```
 1. Choose one of the [version tags](https://github.com/Aldaviva/AuthenticatorChooser/tags) to build, or skip this step to use the head commit on the `master` branch.
     ```sh
-    git checkout 0.5.1
+    git checkout 0.6.0
     ```
 1. Build and publish the program (`PublishSingleFile=true` produces a single-file executable, and `SelfContained=false` makes the publish framework-dependent at only ~2 MB, but the target machine needs the [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)).
     ```ps1

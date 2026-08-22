@@ -87,7 +87,9 @@ public class WindowsChooser(ChooserOptions options): AbstractChooser<SystemWindo
         }
     }
 
-    // Window name and title are localized, so don't match against those
-    public override bool isFidoPromptWindow(SystemWindow window) => window.ClassName == WINDOW_CLASS_NAME;
+    // Window name and title are localized, so don't match against those. The class name alone is forgeable by any
+    // process, so also require the window to belong to a Microsoft-signed system process before trusting it.
+    public override bool isFidoPromptWindow(SystemWindow window) =>
+        window.ClassName == WINDOW_CLASS_NAME && WindowTrust.isTrustedSystemProcess(window.HWnd);
 
 }

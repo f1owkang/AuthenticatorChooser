@@ -13,6 +13,13 @@ internal static class Logging {
     }
 
     internal static void write(string line) {
+        // Neutralize CR/LF, ANSI escapes, and Unicode line separators so attacker-controlled text (window titles,
+        // provider names) cannot forge log lines or spoof terminal output (CWE-117).
+        line = line.Replace("\r", "\\r").Replace("\n", "\\n")
+                   .Replace("\u001b", "\\e")
+                   .Replace("\u0085", "\\u0085")
+                   .Replace("\u2028", "\\u2028")
+                   .Replace("\u2029", "\\u2029");
         Console.WriteLine(line);
         if (logFile != null) {
             try {

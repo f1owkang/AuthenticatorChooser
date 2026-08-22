@@ -23,8 +23,18 @@ public sealed class TrayApplicationContext : ApplicationContext {
             Visible          = true,
             ContextMenuStrip = trayMenu.MenuStrip
         };
+        trayIcon.MouseDoubleClick += onTrayIconDoubleClick;
 
         startBackgroundFidoListener(options);
+    }
+
+    /// <summary>Opens the PIN cache/clear dialog when the tray icon is double-clicked.</summary>
+    private void onTrayIconDoubleClick(object? sender, MouseEventArgs e) {
+        if (e.Button != MouseButtons.Left) {
+            return;
+        }
+        using var dialog = new PinSetupDialog();
+        dialog.ShowDialog();
     }
 
     private static Icon? loadIcon() {

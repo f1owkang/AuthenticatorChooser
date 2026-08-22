@@ -37,6 +37,8 @@ public static class PriorityChooser {
     /// <summary>Default filename (in the same directory as the executable) when no <c>--priority-file</c> is given.</summary>
     public const string DEFAULT_FILENAME = "priority.txt";
 
+    private static readonly Logger LOGGER = LogManager.GetLogger(typeof(PriorityChooser).FullName!);
+
     private static readonly Regex LINE_PATTERN = new(@"^\s*(?<name>.+?)\s*=\s*(?<priority>\d+)\s*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -46,6 +48,12 @@ public static class PriorityChooser {
     public static IReadOnlyDictionary<string, int> load(string path) {
         try {
             if (!File.Exists(path)) {
+                return new Dictionary<string, int>();
+            }
+            if (!Security.isOwnedByTrustedPrincipal(path)) {
+                // Owned by someone other than the current user or a local administrator, so it may have been planted by
+                // a lower-privileged user to redirect authentication; ignore it (fail closed).
+                LOGGER.Warn("Ignoring priority file {path} because it is owned by an untrusted account", path);
                 return new Dictionary<string, int>();
             }
 

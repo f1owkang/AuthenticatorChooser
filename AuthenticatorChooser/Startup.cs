@@ -36,6 +36,21 @@ public class Startup {
     [Option("--autostart-on-logon", CommandOptionType.NoValue)]
     public bool autostartOnLogon { get; }
 
+    [Option("--set-pin", CommandOptionType.NoValue)]
+    public bool setPin { get; }
+
+    [Option("--pin-cache-ttl", CommandOptionType.SingleValue)]
+    public int? pinCacheTtlSeconds { get; }
+
+    [Option("--pin-clear-on-lock", CommandOptionType.NoValue)]
+    public bool pinClearOnLock { get; }
+
+    [Option("--pin-clear-on-sleep", CommandOptionType.NoValue)]
+    public bool pinClearOnSleep { get; }
+
+    [Option("--pin-clear-on-hibernate", CommandOptionType.NoValue)]
+    public bool pinClearOnHibernate { get; }
+
     [Option("-l|--log", CommandOptionType.SingleOrNoValue)]
     public (bool enabled, string? filename) log { get; }
 
@@ -58,6 +73,23 @@ public class Startup {
                 return 1;
             }
 
+            // Load persisted preferences (UI language, auto-select, preferred authenticator, PIN cache); explicit
+            // command-line arguments take precedence. The PIN itself is never persisted.
+            Settings.load();
+            if (pinCacheTtlSeconds is { } ttlSeconds) {
+                Settings.pinCacheTtlSeconds = ttlSeconds;
+            }
+            Settings.pinClearOnLock      |= pinClearOnLock;
+            Settings.pinClearOnSleep     |= pinClearOnSleep;
+            Settings.pinClearOnHibernate |= pinClearOnHibernate;
+            if (autosubmitPinLength is { } pinLength) {
+                Settings.autoSubmitPinLength = pinLength;
+            }
+            PinCache.initialize();
+            if (setPin) {
+                Program.setupPin();
+            }
+
             using Mutex singleInstanceLock = new(true, $@"Local\{PROGRAM_NAME}_{CURRENT_USER.User?.Value}", out bool isOnlyInstance);
             CURRENT_USER.Dispose();
             if (!isOnlyInstance) {
@@ -72,7 +104,13 @@ public class Startup {
                 logger.Info("{Locales are} {locales}", I18N.LOCALE_NAMES.Count == 1 ? "Locale is" : "Locales are", string.Join(", ", I18N.LOCALE_NAMES));
                 logger.Info("Waiting for Windows Security FIDO dialog boxes to open");
 
-                ChooserOptions options = new(skipAllNonSecurityKeyOptions, autosubmitPinLength, resolvePriorityFile(priorityFile));
+                Security.warnIfDeploymentDirectoryIsInsecure();
+
+                UiLanguage.apply(Settings.uiLanguage);
+
+                ChooserOptions options = new(skipAllNonSecurityKeyOptions, Settings.autoSubmitPinLength, resolvePriorityFile(priorityFile));
+                options.isEnabled = Settings.autoSelectEnabled;
+                options.preferredAuthenticator = Settings.preferredAuthenticator;
 
                 Console.CancelKeyPress += (_, args) => {
                     args.Cancel = true;
@@ -80,6 +118,10 @@ public class Startup {
                 };
 
                 SystemEvents.SessionEnding += onWindowsLogoff;
+                SystemEvents.SessionSwitch += onSessionSwitch;
+                SystemEvents.PowerModeChanged += onPowerModeChanged;
+                // Last-resort cleanup so a cached PIN is zeroed on any orderly (or most abnormal) process exit.
+                AppDomain.CurrentDomain.ProcessExit += (_, _) => PinCache.clear();
 
                 // Blocks on the WinForms message loop until the app exits
                 Program.launch(options);
@@ -112,8 +154,14 @@ public class Startup {
     }
 
     private static string? resolvePriorityFile(string? configuredPath) {
-        // #63: if the user didn't pass --priority-file, default to priority.txt next to the executable
-        return configuredPath is { Length: > 0 } ? configuredPath : Path.Combine(AppContext.BaseDirectory, PriorityChooser.DEFAULT_FILENAME);
+        if (configuredPath is { Length: > 0 }) {
+            return configuredPath;
+        }
+        // #63: if the user didn't pass --priority-file, only use priority.txt next to the executable when it actually
+        // exists. Otherwise there is no priority list, which keeps the conservative default of not auto-submitting when
+        // other valid authenticator options are present.
+        string defaultPath = Path.Combine(AppContext.BaseDirectory, PriorityChooser.DEFAULT_FILENAME);
+        return File.Exists(defaultPath) ? defaultPath : null;
     }
 
     private static void showUsage() {
@@ -135,6 +183,19 @@ public class Startup {
             {processFilename} --autosubmit-pin-length=$num
                 When Windows prompts you for the FIDO PIN for your USB security key, automatically submit the dialog once you have typed a PIN that is $num characters long (minimum 4), instead of you manually pressing Enter. Remember that enough consecutive incorrect submissions (8 on YubiKeys) will permanently block the security key until you reset it and lose all its FIDO credentials, so type with care. This will neither autosubmit PINs when registering a new FIDO credential, changing your PIN, or entering a Windows Hello PIN (which Windows autosubmits without this program's help).
                 
+            {processFilename} --set-pin
+                Prompts you once (in a dialog box, never on a command line) for the PIN of your USB security key, then caches it in memory only (never written to disk) so the program can auto-fill the Windows Security PIN prompt instead of you typing it every time, for --pin-cache-ttl seconds. Because the PIN is only held in memory, you must run --set-pin again after every restart. The cache only works with a single attached security key; if more than one key is present, --set-pin refuses to store the PIN to avoid locking out the wrong key. The same dialog also lets you clear the cached PIN. Without a cached PIN, the program never touches the PIN field.
+                
+            {processFilename} --pin-cache-ttl=$seconds
+                How long (in seconds) a PIN cached with --set-pin stays valid before it expires and you have to cache it again, mirroring gpg-agent's default-cache-ttl. Defaults to 600 (10 minutes). Use 0 to keep the PIN until the program restarts, i.e. it never expires while the program is running.
+                
+            {processFilename} --pin-clear-on-lock
+                Forgets the cached security key PIN whenever Windows is locked, so it has to be re-entered after you unlock.
+                
+            {processFilename} --pin-clear-on-sleep
+            {processFilename} --pin-clear-on-hibernate
+                Forgets the cached security key PIN when Windows suspends. Sleep and hibernation both report the same system suspend event, so these two options behave identically.
+                
             {processFilename} --log[=$filename]
                 Runs this program in the background like the first example, and logs debug messages to a text file. If you don't specify $filename, it goes to {Path.Combine(Environment.GetEnvironmentVariable("TEMP") ?? "%TEMP%", PROGRAM_NAME + ".log")}.
               
@@ -150,6 +211,21 @@ public class Startup {
         logger?.Info("Exiting due to Windows session ending for {0}", args.Reason);
         SystemEvents.SessionEnding -= onWindowsLogoff;
         requestExit();
+    }
+
+    private static void onSessionSwitch(object sender, SessionSwitchEventArgs args) {
+        if (args.Reason == SessionSwitchReason.SessionLock && PinCache.clearOnLockEnabled) {
+            logger?.Info("Forgetting cached security key PIN because Windows was locked");
+            PinCache.clear();
+        }
+    }
+
+    private static void onPowerModeChanged(object sender, PowerModeChangedEventArgs args) {
+        // Sleep and hibernation both surface as the same Suspend event, so either option clears the PIN.
+        if (args.Mode == PowerModes.Suspend && (PinCache.clearOnSleepEnabled || PinCache.clearOnHibernateEnabled)) {
+            logger?.Info("Forgetting cached security key PIN because Windows is suspending (sleep or hibernation)");
+            PinCache.clear();
+        }
     }
 
 }

@@ -11,12 +11,10 @@ public class Win1125H2Strategy(ChooserOptions options): Win11Strategy(options) {
         new PropertyCondition(AutomationElement.ClassNameProperty, "Hyperlink"),
         AutomationElement.NameProperty.singletonSafeCondition(false, I18N.getStrings(I18N.Key.CHOOSE_A_DIFFERENT_PASSKEY)));
 
-    private static readonly Condition AUTHENTICATOR_NAME_CONDITION = new AndCondition(
-        new PropertyCondition(AutomationElement.ClassNameProperty, "TextBlock"),
-        new PropertyCondition(AutomationElement.HeadingLevelProperty, AutomationHeadingLevel.None));
+    private static readonly Condition TEXT_BLOCK_CONDITION = new PropertyCondition(AutomationElement.ClassNameProperty, "TextBlock");
 
     public override bool canHandleTitle(string? actualTitle) => I18N.getStrings(I18N.Key.CHOOSE_A_PASSKEY)
-        .Concat(options.skipAllNonSecurityKeyOptions || options.autoSubmitPinLength >= MIN_PIN_LENGTH ? I18N.getStrings(I18N.Key.SIGN_IN_WITH_A_PASSKEY) : [])
+        .Concat(options.skipAllNonSecurityKeyOptions || options.autoSubmitPinLength >= MIN_PIN_LENGTH || PinCache.hasCached() ? I18N.getStrings(I18N.Key.SIGN_IN_WITH_A_PASSKEY) : [])
         .Any(expected => expected.Equals(actualTitle, StringComparison.CurrentCulture));
 
     public override async Task handleWindow(string actualTitle, AutomationElement fidoEl, AutomationElement outerScrollViewer, bool isShiftDown) {
@@ -34,20 +32,31 @@ public class Win1125H2Strategy(ChooserOptions options): Win11Strategy(options) {
             }
         } else {
             /*
-             * The choice to use a non-TPM passkey was moved from the list to a separate link in 25H2.
-             * Here, the user wants to skip all non-security-key options, and this prompt is one of the authenticator challenges like entering a TPM PIN or plugging in a security key
+             * In 25H2 the security-key challenge (PIN entry) appears inside the "Sign in with a passkey" dialog
+             * rather than as a separate prompt. Decide whether this dialog is asking for a security key — its name
+             * or the "Security key PIN" label — so a cached PIN can be auto-filled; otherwise it's a TPM prompt,
+             * which only --skip-all-non-security-key-options users want to bypass.
              */
-            if (await outerScrollViewer.WaitForFirstAsync(TreeScope.Children, AUTHENTICATOR_NAME_CONDITION) is not { } authenticatorNameEl) {
-                LOGGER.Debug("Could not find name of the current authenticator while trying to skip a non-security-key option, ignoring dialog");
-                return;
-            }
+            bool isSecurityKeyPrompt = outerScrollViewer.FindAll(TreeScope.Descendants, TEXT_BLOCK_CONDITION)
+                .Cast<AutomationElement>()
+                .Any(el => I18N.getStrings(I18N.Key.SECURITY_KEY).Any(key => el.Current.Name.Contains(key, StringComparison.CurrentCultureIgnoreCase)));
 
-            if (I18N.getStrings(I18N.Key.SECURITY_KEY).Contains(authenticatorNameEl.Current.Name, StringComparer.CurrentCulture)) {
+            if (isSecurityKeyPrompt) {
+                if (await tryAutofillPin(fidoEl, null, outerScrollViewer)) {
+                    return;
+                }
                 if (options.autoSubmitPinLength >= MIN_PIN_LENGTH) {
                     autosubmitPin(fidoEl, outerScrollViewer);
                 } else {
                     LOGGER.Debug("The current authenticator is already a security key, so there is nothing to do on this dialog");
                 }
+                return;
+            }
+
+            // Only users who asked to skip every non-security-key option get the "choose a different passkey" skip;
+            // a cached PIN or autosubmit alone must not silently bypass a TPM prompt.
+            if (!options.skipAllNonSecurityKeyOptions) {
+                LOGGER.Debug("The current authenticator is not a security key, leaving the dialog untouched");
                 return;
             }
 

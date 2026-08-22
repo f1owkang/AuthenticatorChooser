@@ -8,6 +8,12 @@
         "resolved": "5.1.0",
         "contentHash": "YceiKmxdsBrlkAJpmJ2N8XkLyAH01xLsm4VLfjNp5MvtAom2wflZtEBz3CLMQret6Z7jSh3oBO1ULF1Is0tNxA=="
       },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[10.0.10, )",
+        "resolved": "10.0.10",
+        "contentHash": "f5VCIE7AJpd5YvzNTeMGVzQIgyE9tX+AreTYwQF+REbu+DZo/2Ae+jNSwhPEYrVz6RRkd7y8ubXjk6Nn6Ka+Cg=="
+      },
       "mwinapi": {
         "type": "Direct",
         "requested": "[0.3.0.6, )",
@@ -62,6 +68,13 @@
         "type": "Transitive",
         "resolved": "4.0.0.147",
         "contentHash": "iDvqFHgx9j4jlfRQEMk6VM5kf3AKVim7ZVveap96hxYh5ppRTY83f4ByNdvTHS9Jw3t6h2KPK8ZtRW7rinna1g=="
+      }
+    },
+    "net10.0-windows10.0.19041/win-x64": {
+      "System.Management": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "sHsESYMmPDhQuOC66h6AEOs/XowzKsbT9srMbX71TCXP58hkpn1BqBjdmKj1+DCA/WlBETX1K5WjQHwmV0Txrg=="
       }
     }
   }

@@ -180,4 +180,79 @@
   <data name="autostartRegisterFailed" xml:space="preserve">
     <value>无法注册程序开机自启。</value>
   </data>
+  <data name="traySecurityKeyPin" xml:space="preserve">
+    <value>PIN 设置</value>
+  </data>
+  <data name="trayPinCache" xml:space="preserve">
+    <value>PIN 缓存</value>
+  </data>
+  <data name="trayTtlSubmenu" xml:space="preserve">
+    <value>过期时间（TTL）</value>
+  </data>
+  <data name="trayTtl5Min" xml:space="preserve">
+    <value>5 分钟</value>
+  </data>
+  <data name="trayTtl10Min" xml:space="preserve">
+    <value>10 分钟</value>
+  </data>
+  <data name="trayTtl30Min" xml:space="preserve">
+    <value>30 分钟</value>
+  </data>
+  <data name="trayTtl1Hour" xml:space="preserve">
+    <value>1 小时</value>
+  </data>
+  <data name="trayTtlUntilExit" xml:space="preserve">
+    <value>直到退出</value>
+  </data>
+  <data name="trayPinClearOnLock" xml:space="preserve">
+    <value>锁屏时失效</value>
+  </data>
+  <data name="trayPinClearOnSleep" xml:space="preserve">
+    <value>睡眠时失效</value>
+  </data>
+  <data name="trayPinClearOnHibernate" xml:space="preserve">
+    <value>休眠时失效</value>
+  </data>
+  <data name="pinDialogTitle" xml:space="preserve">
+    <value>缓存安全密钥 PIN</value>
+  </data>
+  <data name="pinDialogPin" xml:space="preserve">
+    <value>PIN：</value>
+  </data>
+  <data name="pinDialogConfirm" xml:space="preserve">
+    <value>确认 PIN：</value>
+  </data>
+  <data name="pinDialogHint" xml:space="preserve">
+    <value>仅在内存中加密缓存（从不写入磁盘），程序运行期间有效。</value>
+  </data>
+  <data name="pinDialogCacheButton" xml:space="preserve">
+    <value>缓存 PIN</value>
+  </data>
+  <data name="pinDialogClearButton" xml:space="preserve">
+    <value>清除已缓存 PIN</value>
+  </data>
+  <data name="pinDialogCancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="pinDialogEmpty" xml:space="preserve">
+    <value>PIN 不能为空。</value>
+  </data>
+  <data name="pinDialogMismatch" xml:space="preserve">
+    <value>两次输入的 PIN 不一致。</value>
+  </data>
+  <data name="pinDialogMultiKey" xml:space="preserve">
+    <value>检测到多把安全密钥。PIN 缓存只在单把密钥时安全（缓存的一把密钥的 PIN 可能被输入到另一把密钥而导致其被锁死）。请移除多余密钥后重试。</value>
+  </data>
+  <data name="pinDialogError" xml:space="preserve">
+    <value>无法在内存中加密 PIN。</value>
+  </data>
+  <data name="pinDialogTtl" xml:space="preserve">
+    <value>缓存的 PIN 将在 {0} 秒后过期。</value>
+  </data>
+  <data name="pinDialogTtlUnlimited" xml:space="preserve">
+    <value>缓存的 PIN 在程序退出前一直有效。</value>
+  </data>
+  <data name="pinDialogTtlRemaining" xml:space="preserve">
+    <value>缓存的 PIN 将于 {0} 后过期。</value>
+  </data>
 </root>

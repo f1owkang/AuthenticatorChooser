@@ -180,4 +180,79 @@
   <data name="autostartRegisterFailed" xml:space="preserve">
     <value>Failed to register the program to start automatically at logon.</value>
   </data>
+  <data name="traySecurityKeyPin" xml:space="preserve">
+    <value>PIN settings</value>
+  </data>
+  <data name="trayPinCache" xml:space="preserve">
+    <value>PIN cache</value>
+  </data>
+  <data name="trayTtlSubmenu" xml:space="preserve">
+    <value>Expiration (TTL)</value>
+  </data>
+  <data name="trayTtl5Min" xml:space="preserve">
+    <value>5 minutes</value>
+  </data>
+  <data name="trayTtl10Min" xml:space="preserve">
+    <value>10 minutes</value>
+  </data>
+  <data name="trayTtl30Min" xml:space="preserve">
+    <value>30 minutes</value>
+  </data>
+  <data name="trayTtl1Hour" xml:space="preserve">
+    <value>1 hour</value>
+  </data>
+  <data name="trayTtlUntilExit" xml:space="preserve">
+    <value>Until exit</value>
+  </data>
+  <data name="trayPinClearOnLock" xml:space="preserve">
+    <value>Forget on lock</value>
+  </data>
+  <data name="trayPinClearOnSleep" xml:space="preserve">
+    <value>Forget on sleep</value>
+  </data>
+  <data name="trayPinClearOnHibernate" xml:space="preserve">
+    <value>Forget on hibernate</value>
+  </data>
+  <data name="pinDialogTitle" xml:space="preserve">
+    <value>Cache security key PIN</value>
+  </data>
+  <data name="pinDialogPin" xml:space="preserve">
+    <value>PIN:</value>
+  </data>
+  <data name="pinDialogConfirm" xml:space="preserve">
+    <value>Confirm PIN:</value>
+  </data>
+  <data name="pinDialogHint" xml:space="preserve">
+    <value>Cached in memory only (never written to disk) while the program runs.</value>
+  </data>
+  <data name="pinDialogCacheButton" xml:space="preserve">
+    <value>Cache PIN</value>
+  </data>
+  <data name="pinDialogClearButton" xml:space="preserve">
+    <value>Clear cached PIN</value>
+  </data>
+  <data name="pinDialogCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="pinDialogEmpty" xml:space="preserve">
+    <value>PIN cannot be empty.</value>
+  </data>
+  <data name="pinDialogMismatch" xml:space="preserve">
+    <value>The two PINs do not match.</value>
+  </data>
+  <data name="pinDialogMultiKey" xml:space="preserve">
+    <value>More than one security key is attached. The PIN cache only works safely with a single key (a cached PIN could be entered into the wrong key and lock it out). Please remove the extra keys and try again.</value>
+  </data>
+  <data name="pinDialogError" xml:space="preserve">
+    <value>Could not encrypt the PIN in memory.</value>
+  </data>
+  <data name="pinDialogTtl" xml:space="preserve">
+    <value>The cached PIN will expire after {0} seconds.</value>
+  </data>
+  <data name="pinDialogTtlUnlimited" xml:space="preserve">
+    <value>The cached PIN stays valid until the program exits.</value>
+  </data>
+  <data name="pinDialogTtlRemaining" xml:space="preserve">
+    <value>The cached PIN expires in {0}.</value>
+  </data>
 </root>

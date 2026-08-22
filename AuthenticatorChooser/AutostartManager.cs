@@ -84,8 +84,14 @@ public static class AutostartManager {
         if (options.skipAllNonSecurityKeyOptions) {
             args.Add("--skip-all-non-security-key-options");
         }
-        if (options.priorityFile is { Length: > 0 }) {
-            args.Add($"--priority-file=\"{options.priorityFile}\"");
+        if (options.priorityFile is { Length: > 0 } priorityFile) {
+            if (priorityFile.Contains('"')) {
+                // '"' is not a valid character in a Windows file path, so a value containing one is hostile or
+                // malformed; refusing to embed it prevents the scheduled task's command line from being split into
+                // extra arguments at next logon.
+                return null;
+            }
+            args.Add($"--priority-file=\"{priorityFile}\"");
         }
         if (options.autoSubmitPinLength is { } pinLength) {
             args.Add($"--autosubmit-pin-length={pinLength}");
