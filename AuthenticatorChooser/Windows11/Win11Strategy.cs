@@ -22,6 +22,9 @@ public abstract class Win11Strategy(ChooserOptions options): PromptStrategy {
         if (isShiftDown) {
             LOGGER.Info("Shift is pressed, not submitting dialog box");
             return true;
+        } else if (options.preferredAuthenticator != null) {
+            // #5: the user explicitly chose a preferred authenticator from the tray menu, so submit it
+            return false;
         } else if (options.priorityFile != null) {
             // #63: a user-configured priority list is authoritative, so never skip a matched choice
             return false;
@@ -45,6 +48,19 @@ public abstract class Win11Strategy(ChooserOptions options): PromptStrategy {
     }
 
     protected AutomationElement? getSecurityKeyChoice(IEnumerable<AutomationElement> authenticatorChoices) {
+        // #5: an authenticator chosen from the system tray menu takes priority over everything else
+        if (options.preferredAuthenticator is { } preferredName) {
+            AutomationElement? preferredChoice = PriorityChooser.chooseBest(
+                authenticatorChoices as IReadOnlyCollection<AutomationElement> ?? authenticatorChoices.ToList(),
+                new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { [preferredName] = 1000 },
+                I18N.getStrings(I18N.Key.SECURITY_KEY), I18N.getStrings(I18N.Key.SMARTPHONE));
+            if (preferredChoice != null) {
+                LOGGER.Info("Selected authenticator option \"{name}\" chosen from the system tray menu", preferredChoice.Current.Name);
+                return preferredChoice;
+            }
+            LOGGER.Debug("Preferred authenticator \"{name}\" from the tray menu is not present in this dialog, falling back", preferredName);
+        }
+
         if (options.priorityFile != null) {
             // #63: consult the user-configured priority list, falling back to USB if nothing else is preferred
             AutomationElement? preferred = PriorityChooser.chooseBest(authenticatorChoices as IReadOnlyCollection<AutomationElement> ?? authenticatorChoices.ToList(),

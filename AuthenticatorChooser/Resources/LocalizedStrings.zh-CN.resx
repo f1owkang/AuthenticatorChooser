@@ -147,4 +147,31 @@
   <data name="makingSureItsYou2" xml:space="preserve">
     <value>确保这是你本人</value>
   </data>
+  <data name="trayEnableAutomaticSelection" xml:space="preserve">
+    <value>启用自动选择安全密钥</value>
+  </data>
+  <data name="trayExit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="trayLanguage" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="trayFollowSystemLanguage" xml:space="preserve">
+    <value>跟随系统语言</value>
+  </data>
+  <data name="trayAuthenticator" xml:space="preserve">
+    <value>首选验证方法</value>
+  </data>
+  <data name="trayAuthenticatorDefault" xml:space="preserve">
+    <value>默认（自动）</value>
+  </data>
+  <data name="trayAuthenticatorUsb" xml:space="preserve">
+    <value>USB 安全密钥</value>
+  </data>
+  <data name="trayAuthenticatorPairNewPhone" xml:space="preserve">
+    <value>配对手机</value>
+  </data>
+  <data name="trayAuthenticatorUseExistingPhone" xml:space="preserve">
+    <value>使用已有手机</value>
+  </data>
 </root>
