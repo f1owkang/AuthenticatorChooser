@@ -3,8 +3,8 @@
 
 [![Download count](https://img.shields.io/github/downloads/f1owkang/AuthenticatorChooser/total?logo=github)](https://github.com/f1owkang/AuthenticatorChooser/releases) [![Build status](https://img.shields.io/github/actions/workflow/status/f1owkang/AuthenticatorChooser/dotnet.yml?branch=master&logo=github)](https://github.com/f1owkang/AuthenticatorChooser/actions/workflows/dotnet.yml)
 
-*后台程序，自动跳过「配对手机」选项，并在 Windows FIDO/WebAuthn 弹窗中自动选择「USB 安全密钥」。*
-*Background program that skips the phone pairing option and chooses the USB security key in Windows FIDO/WebAuthn prompts.*
+*带系统托盘图标的后台程序，自动跳过「配对手机」选项，并在 Windows FIDO/WebAuthn 弹窗中自动选择「USB 安全密钥」。*
+*Background program with a system tray icon that skips the phone pairing option and chooses the USB security key in Windows FIDO/WebAuthn prompts.*
 
 <!-- MarkdownTOC autolink="true" bracket="round" autoanchor="false" levels="1,2" -->
 
@@ -42,13 +42,13 @@ Now it says "Choose a passkey," and you have to indicate whether you want to use
 
 ## 解决方案 / Solution
 
-**中文**：这是一个在 Windows 用户会话中无界面后台运行的程序。它等待 Windows FIDO 凭据提供程序弹窗出现，然后自动为你选择「安全密钥」选项。从用户的角度看，蓝牙界面几乎刚出现就被替换为「插入你的 USB 安全密钥」的提示。
+**中文**：这是一个在 Windows 用户会话中后台运行、**驻留系统托盘**的程序（托盘图标带右键菜单，可启用/禁用自动选择、切换首选验证方法、切换语言、缓存安全密钥 PIN 等，详见[系统托盘图标](#系统托盘图标--system-tray-icon)）。它等待 Windows FIDO 凭据提供程序弹窗出现，然后自动为你选择「安全密钥」选项。从用户的角度看，蓝牙界面几乎刚出现就被替换为「插入你的 USB 安全密钥」的提示。
 
 <p align="center"><img src=".github/images/demo.gif" alt="demo" width="465" /></p>     
 
 在内部，本程序使用 [Microsoft UI Automation](https://learn.microsoft.com/en-us/windows/win32/winauto/uiauto-uiautomationoverview) 来读取并操作这些对话框。
 
-**English**: This is a background program that runs headlessly in your Windows user session. It waits for Windows FIDO credential provider prompts to appear, then chooses the Security Key option for you automatically. From the user's perspective, the Bluetooth screen barely even appears before it's replaced with the prompt to plug in your USB security key.
+**English**: This is a background program that runs in your Windows user session with a **system tray GUI** — a tray icon with a right-click menu for enabling/disabling automatic selection, choosing the preferred authenticator, switching the language, and caching the security key PIN (see [System tray icon](#系统托盘图标--system-tray-icon)). It waits for Windows FIDO credential provider prompts to appear, then chooses the Security Key option for you automatically. From the user's perspective, the Bluetooth screen barely even appears before it's replaced with the prompt to plug in your USB security key.
 
 Internally, this program uses [Microsoft UI Automation](https://learn.microsoft.com/en-us/windows/win32/winauto/uiauto-uiautomationoverview) to read and interact with the dialog boxes.
 
@@ -212,7 +212,7 @@ The following preferences are persisted to `%APPDATA%\AuthenticatorChooser\setti
 1. 将压缩包中的 `AuthenticatorChooser.exe` 解压到你选择的目录，例如 `C:\Program Files\AuthenticatorChooser\`。
     - 发布版为框架依赖的单文件（约 2 MB），首次运行前需安装 [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)。
 1. 双击 `AuthenticatorChooser.exe` 运行程序。
-    - 由于它是没有界面的后台程序，不会显示任何窗口，但你可以在任务管理器中搜索 `AuthenticatorChooser` 来确认它在运行。
+    - 程序没有主窗口，运行后驻留在系统托盘中（右键托盘图标可打开设置菜单），但你可以通过任务管理器中搜索 `AuthenticatorChooser` 来确认它在运行。
 1. 使用**以下任意一种**方式注册程序在用户登录时自动运行。如果你还想指定额外的[命令行参数](https://github.com/Aldaviva/AuthenticatorChooser/wiki/Command%E2%80%90line-arguments)（如 `--skip-all-non-security-key-options`），也可以在这里一并设置。
     - 用 `--autostart-on-logon` 参数运行一次本程序
         ```ps1
@@ -226,7 +226,7 @@ The following preferences are persisted to `%APPDATA%\AuthenticatorChooser\setti
 1. Extract the `AuthenticatorChooser.exe` file from the ZIP archive to a directory of your choice, like `C:\Program Files\AuthenticatorChooser\`.
     - The release is a framework-dependent single file (~2 MB); install the [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) before the first run.
 1. Run the program by double-clicking `AuthenticatorChooser.exe`.
-    - Nothing will appear because it's a background program with no UI, but you can tell it's running by searching for `AuthenticatorChooser` in Task Manager.
+    - No main window will appear — the program runs in the system tray (right-click its icon for the settings menu) — but you can tell it's running by searching for `AuthenticatorChooser` in Task Manager.
 1. Register the program to run automatically on user logon with **any one** of the following techniques. If you'd like to specify additional [command-line arguments](https://github.com/Aldaviva/AuthenticatorChooser/wiki/Command%E2%80%90line-arguments) like `--skip-all-non-security-key-options`, you can do that here too.
     - Run this program once with the `--autostart-on-logon` argument
         ```ps1
