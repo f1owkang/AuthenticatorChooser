@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace AuthenticatorChooser;
 
-public record struct ChooserOptions(bool skipAllNonSecurityKeyOptions, int? autoSubmitPinLength, string? priorityFile) {
+public sealed record ChooserOptions(bool skipAllNonSecurityKeyOptions, int? autoSubmitPinLength, string? priorityFile) {
 
     public Stopwatch overallStopwatch { get; } = new();
 

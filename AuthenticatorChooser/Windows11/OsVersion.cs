@@ -9,7 +9,6 @@ namespace AuthenticatorChooser.Windows11;
 internal readonly record struct OsVersion(string name, string marketingVersion, Version version, string architecture) {
 
     private const string NT_CURRENTVERSION_KEY = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion";
-    private const string PRODUCT_NAME_KEY      = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion";
 
     /// <summary>
     /// Reads OS version info without WMI, because <see cref="System.Management"/>'s WMI query can throw
@@ -18,7 +17,7 @@ internal readonly record struct OsVersion(string name, string marketingVersion, 
     /// </summary>
     public static OsVersion getCurrent() {
         // #40: product name like "Windows 11 Pro"; fall back gracefully if any registry read fails
-        string name = readRegistryString(PRODUCT_NAME_KEY, "ProductName") is { } productName && !string.IsNullOrWhiteSpace(productName)
+        string name = readRegistryString(NT_CURRENTVERSION_KEY, "ProductName") is { } productName && !string.IsNullOrWhiteSpace(productName)
             ? productName
             : "Microsoft Windows";
 

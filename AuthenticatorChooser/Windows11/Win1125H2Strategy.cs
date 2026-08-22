@@ -1,4 +1,3 @@
-using NLog;
 using System.Windows.Automation;
 using Unfucked;
 

@@ -1,35 +1,26 @@
-using NLog;
-using NLog.Config;
-using NLog.Layouts;
-using NLog.Targets;
-
 namespace AuthenticatorChooser;
 
 internal static class Logging {
 
-    private static readonly SimpleLayout MESSAGE_FORMAT = new(
-        " ${level:format=FirstCharacter:lowercase=true} | ${date:format=yyyy-MM-dd HH\\:mm\\:ss.fff} | ${logger:shortName=true:padding=-25} | ${message:withException=true:exceptionSeparator=\n}");
+    private static string? logFile;
 
-    private static readonly LogLevel LOG_LEVEL = LogLevel.Debug;
-
+    /// <summary>Starts logging to the console and, when <paramref name="enableFileAppender"/> is set, to a file.</summary>
     public static void initialize(bool enableFileAppender, string? logFilename) {
-        logFilename = logFilename != null ? Environment.ExpandEnvironmentVariables(logFilename) : Path.Combine(Path.GetTempPath(), Path.ChangeExtension(nameof(AuthenticatorChooser), ".log"));
+        logFile = enableFileAppender
+            ? logFilename is not null ? Environment.ExpandEnvironmentVariables(logFilename)
+                                      : Path.Combine(Path.GetTempPath(), Path.ChangeExtension(nameof(AuthenticatorChooser), ".log"))
+            : null;
+    }
 
-        LoggingConfiguration logConfig = new();
-
-        if (enableFileAppender) {
-            logConfig.AddRule(LOG_LEVEL, LogLevel.Fatal, new FileTarget("fileAppender") {
-                Layout   = MESSAGE_FORMAT,
-                FileName = logFilename
-            });
+    internal static void write(string line) {
+        Console.WriteLine(line);
+        if (logFile != null) {
+            try {
+                File.AppendAllText(logFile, line + Environment.NewLine);
+            } catch (Exception) {
+                // logging must never crash the program
+            }
         }
-
-        logConfig.AddRule(LOG_LEVEL, LogLevel.Fatal, new ConsoleTarget("consoleAppender") {
-            Layout                 = MESSAGE_FORMAT,
-            DetectConsoleAvailable = true
-        });
-
-        LogManager.Configuration = logConfig;
     }
 
 }

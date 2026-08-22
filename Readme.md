@@ -161,13 +161,13 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 **中文**：
 
 - Windows 11 25H2、24H2、23H2，或 [22H2 Moment 4](https://support.microsoft.com/en-us/topic/september-26-2023-kb5030310-os-build-22621-2361-preview-363ac1ae-6ea8-41b3-b3cc-22a2a5682faf)
-- [.NET Desktop Runtime 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0/runtime) 或更高版本，x64 或 arm64
+- [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) 或更高版本，x64 或 arm64（界面为 WinUI 3 / Windows App SDK 原生）
 - 通过远程桌面连接（Remote Desktop Connection）使用 Windows 时，本程序必须运行在客户端而非服务器上，因为 FIDO 弹窗会被转发并在 `mstsc` 窗口之外的客户端显示
 
 **English**:
 
 - Windows 11 25H2, 24H2, 23H2, or [22H2 Moment 4](https://support.microsoft.com/en-us/topic/september-26-2023-kb5030310-os-build-22621-2361-preview-363ac1ae-6ea8-41b3-b3cc-22a2a5682faf)
-- [.NET Desktop Runtime 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0/runtime) or later, either x64 or arm64
+- [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) or later, either x64 or arm64 (WinUI 3 / Windows App SDK native UI)
 - When using Windows over Remote Desktop Connection, this program must run on the client, not the server, because FIDO prompts are forwarded and displayed by the client outside of the `mstsc` window
 
 ## 安装 / Installation
@@ -208,7 +208,7 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 
 **中文**：如果你想自己构建该应用而不是从[发布页](https://github.com/Aldaviva/AuthenticatorChooser/releases)下载预编译二进制，可以按以下步骤操作。
 
-1. 安装[最新稳定版 .NET SDK](https://dotnet.microsoft.com/en-us/download)（8 或更高版本）。
+1. 安装[最新稳定版 .NET SDK](https://dotnet.microsoft.com/en-us/download)（10 或更高版本）。
 1. 克隆本仓库。
     ```ps1
     git clone "https://github.com/Aldaviva/AuthenticatorChooser.git"
@@ -223,19 +223,19 @@ If no rules are configured, the default behavior (prefer the USB security key) i
     ```
 1. 构建程序。
     ```ps1
-    dotnet publish -p:PublishSingleFile=true
+    dotnet publish
     ```
 
 假设你的 CPU 架构是 x64，程序将编译到以下路径。
 ```text
-.\bin\Release\net8.0-windows\win-x64\publish\AuthenticatorChooser.exe
+.\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\AuthenticatorChooser.exe
 ```
 
 如果你更喜欢 IDE，也可以使用 [Visual Studio](https://visualstudio.microsoft.com/vs/) Community 2022 或 2026 等集成开发环境。
 
 **English**: If you want to build this application yourself instead of downloading precompiled binaries from the [releases](https://github.com/Aldaviva/AuthenticatorChooser/releases) page, you can follow these steps.
 
-1. Install the [latest stable .NET SDK](https://dotnet.microsoft.com/en-us/download) (8 or later).
+1. Install the [latest stable .NET SDK](https://dotnet.microsoft.com/en-us/download) (10 or later).
 1. Clone this repository.
     ```ps1
     git clone "https://github.com/Aldaviva/AuthenticatorChooser.git"
@@ -250,12 +250,12 @@ If no rules are configured, the default behavior (prefer the USB security key) i
     ```
 1. Build the program.
     ```ps1
-    dotnet publish -p:PublishSingleFile=true
+    dotnet publish
     ```
 
 The program will be compiled to the following path, assuming your CPU architecture is x64.
 ```text
-.\bin\Release\net8.0-windows\win-x64\publish\AuthenticatorChooser.exe
+.\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\AuthenticatorChooser.exe
 ```
 
 You can also use an IDE like [Visual Studio](https://visualstudio.microsoft.com/vs/) Community 2022 or 2026 instead of the command line if you prefer.

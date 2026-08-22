@@ -2,19 +2,19 @@ using ManagedWinapi.Windows;
 
 namespace AuthenticatorChooser.WindowOpening;
 
-public interface WindowOpeningListener: IDisposable {
+public interface WindowListener: IDisposable {
 
     event EventHandler<SystemWindow>? windowOpened;
 
 }
 
-public class WindowOpeningListenerImpl: WindowOpeningListener {
+public class WindowListenerImpl: WindowListener {
 
     public event EventHandler<SystemWindow>? windowOpened;
 
     private readonly ShellHook shellHook = new ShellHookImpl();
 
-    public WindowOpeningListenerImpl() {
+    public WindowListenerImpl() {
         shellHook.shellEvent += onWindowOpened;
     }
 

@@ -28,15 +28,18 @@ jobs:
     - name: Restore
       run: dotnet restore --locked-mode
 
+    # framework-dependent single-file publish (tiny ~2 MB, like g-helper): csproj's PublishSingleFile conditional
+    # group pins SelfContained=false, so only the app's managed code is bundled and the .NET Desktop Runtime is loaded
+    # from the system. mwinapi's tiny native helper is uploaded alongside since it cannot be embedded.
     - name: Build
-      run: dotnet build ${{ env.ProjectName }} --no-restore --runtime ${{ matrix.targetPlatform }} --configuration Release --no-self-contained
+      run: dotnet build ${{ env.ProjectName }} --no-restore --runtime ${{ matrix.targetPlatform }} --configuration Release -p:PublishSingleFile=true
 
     - name: Publish
-      run: dotnet publish ${{ env.ProjectName }} --no-build --runtime ${{ matrix.targetPlatform }} --configuration Release --no-self-contained -p:PublishSingleFile=true
+      run: dotnet publish ${{ env.ProjectName }} --no-build --runtime ${{ matrix.targetPlatform }} --configuration Release -p:PublishSingleFile=true
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v7
       with:
         name: ${{ env.ProjectName }}-${{ matrix.targetPlatform }}
-        path: ${{ env.ProjectName }}/bin/Release/net8.0-windows/${{ matrix.targetPlatform }}/publish/*.exe
+        path: ${{ env.ProjectName }}/bin/Release/net10.0-windows10.0.19041.0/${{ matrix.targetPlatform }}/publish/*
         if-no-files-found: error

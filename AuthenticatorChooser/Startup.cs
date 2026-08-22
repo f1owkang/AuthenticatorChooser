@@ -1,13 +1,9 @@
-using AuthenticatorChooser.WindowOpening;
 using AuthenticatorChooser.Windows11;
-using ManagedWinapi.Windows;
 using McMaster.Extensions.CommandLineUtils;
 using McMaster.Extensions.CommandLineUtils.Conventions;
 using Microsoft.Win32;
-using NLog;
 using System.Reflection;
 using System.Security.Principal;
-using System.Windows.Forms;
 
 // ReSharper disable ClassNeverInstantiated.Global - it's actually instantiated by McMaster.Extensions.CommandLineUtils
 // ReSharper disable UnassignedGetOnlyAutoProperty - it's actually assigned by McMaster.Extensions.CommandLineUtils
@@ -16,12 +12,15 @@ namespace AuthenticatorChooser;
 
 public class Startup {
 
-    private const string PROGRAM_NAME = nameof(AuthenticatorChooser);
+    internal const string PROGRAM_NAME = nameof(AuthenticatorChooser);
 
-    private static readonly string                  PROGRAM_VERSION = Assembly.GetEntryAssembly()!.GetName().Version!.ToString(3);
-    private static readonly CancellationTokenSource EXITING_TRIGGER = new();
-    public static readonly  CancellationToken       EXITING         = EXITING_TRIGGER.Token;
-    private static readonly WindowsIdentity         CURRENT_USER    = WindowsIdentity.GetCurrent();
+    internal static readonly string                  PROGRAM_VERSION = Assembly.GetEntryAssembly()!.GetName().Version!.ToString(3);
+    private static readonly CancellationTokenSource  EXITING_TRIGGER = new();
+    public static readonly  CancellationToken        EXITING         = EXITING_TRIGGER.Token;
+    private static readonly WindowsIdentity          CURRENT_USER    = WindowsIdentity.GetCurrent();
+
+    /// <summary>The resolved options handed to the WinUI app (set by <see cref="Program.launch"/>).</summary>
+    internal static ChooserOptions CURRENT_OPTIONS = null!;
 
     private static Logger? logger;
 
@@ -46,27 +45,9 @@ public class Startup {
     [Option(DefaultHelpOptionConvention.DefaultHelpTemplate, CommandOptionType.NoValue)]
     public bool help { get; }
 
-    [STAThread]
-    public static int Main(string[] args) {
-        try {
-            using var app = new CommandLineApplication<Startup> {
-                UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.Throw
-            };
-            app.Conventions.UseDefaultConventions();
-            return app.Execute(args);
-        } catch (CommandParsingException e) {
-            MessageBox.Show(e.Message, $"{PROGRAM_NAME} {PROGRAM_VERSION}", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return 1;
-        }
-    }
-
     // ReSharper disable once UnusedMember.Global - it's actually invoked by McMaster.Extensions.CommandLineUtils
     // ReSharper disable once InconsistentNaming - it must be named this, as dictated by McMaster.Extensions.CommandLineUtils, it's not my choice
     public int OnExecute() {
-        Application.SetCompatibleTextRenderingDefault(false);
-        Application.EnableVisualStyles();
-        Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
-
         Logging.initialize(log.enabled, log.filename);
         logger = LogManager.GetLogger(typeof(Startup).FullName!);
 
@@ -92,33 +73,19 @@ public class Startup {
                 OsVersion os = OsVersion.getCurrent();
                 logger.Info("Operating system is {name} {marketingVersion} {version} {arch}", os.name, os.marketingVersion, os.version, os.architecture);
                 logger.Info("{Locales are} {locales}", I18N.LOCALE_NAMES.Count == 1 ? "Locale is" : "Locales are", string.Join(", ", I18N.LOCALE_NAMES));
-
-                using WindowOpeningListener windowOpeningListener = new WindowOpeningListenerImpl();
-                ChooserOptions              options                = new(skipAllNonSecurityKeyOptions, autosubmitPinLength, resolvePriorityFile(priorityFile));
-                WindowsSecurityKeyChooser   securityKeyChooser    = new(options);
-
-                windowOpeningListener.windowOpened += (_, window) => securityKeyChooser.chooseUsbSecurityKey(window);
-
-                foreach (SystemWindow fidoPromptWindow in SystemWindow.FilterToplevelWindows(securityKeyChooser.isFidoPromptWindow)) {
-                    securityKeyChooser.chooseUsbSecurityKey(fidoPromptWindow);
-                }
-
                 logger.Info("Waiting for Windows Security FIDO dialog boxes to open");
 
-                _ = I18N.getStrings(I18N.Key.SMARTPHONE); // ensure localization is loaded eagerly
-
-                // #57: system tray icon to enable/disable the program or exit without killing it in Task Manager
-                using SystemTrayIcon trayIcon = new(options);
+                ChooserOptions options = new(skipAllNonSecurityKeyOptions, autosubmitPinLength, resolvePriorityFile(priorityFile));
 
                 Console.CancelKeyPress += (_, args) => {
                     args.Cancel = true;
-                    EXITING_TRIGGER.Cancel();
-                    Application.Exit();
+                    requestExit();
                 };
 
                 SystemEvents.SessionEnding += onWindowsLogoff;
 
-                Application.Run();
+                // Blocks on the WinUI message loop until the app exits
+                Program.launch(options);
             } finally {
                 singleInstanceLock.ReleaseMutex();
             }
@@ -126,7 +93,7 @@ public class Startup {
             return 0;
         } catch (Exception e) when (e is not OutOfMemoryException) {
             logger.Error(e, "Uncaught exception");
-            MessageBox.Show($"Uncaught exception: {e}", PROGRAM_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Win32MessageBox.show($"Uncaught exception: {e}", PROGRAM_NAME, Win32MessageBox.Kind.Error);
             return 1;
         } finally {
             LogManager.Shutdown();
@@ -134,13 +101,16 @@ public class Startup {
         }
     }
 
+    /// <summary>Cancels the shared exit token so background waits stop. The WinForms app is closed by the tray menu's
+    /// exit handler, which calls <see cref="Program.launch"/>'s <see cref="TrayApplicationContext"/>.</summary>
+    internal static void requestExit() => EXITING_TRIGGER.Cancel();
+
     private bool registerAsStartupProgram() {
         if (AutostartManager.enable(new ChooserOptions(skipAllNonSecurityKeyOptions, autosubmitPinLength, resolvePriorityFile(priorityFile)))) {
-            MessageBox.Show($"{PROGRAM_NAME} is now running in the background, and will also start automatically each time you log in to Windows.", PROGRAM_NAME, MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            Win32MessageBox.show($"{PROGRAM_NAME} is now running in the background, and will also start automatically each time you log in to Windows.", PROGRAM_NAME, Win32MessageBox.Kind.Information);
             return true;
         }
-        MessageBox.Show($"Failed to register {PROGRAM_NAME} to start automatically on Windows logon.", PROGRAM_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        Win32MessageBox.show($"Failed to register {PROGRAM_NAME} to start automatically on Windows logon.", PROGRAM_NAME, Win32MessageBox.Kind.Error);
         return false;
     }
 
@@ -151,7 +121,7 @@ public class Startup {
 
     private static void showUsage() {
         string processFilename = Path.GetFileName(Environment.ProcessPath)!;
-        MessageBox.Show(
+        Win32MessageBox.show(
             $"""
             {processFilename}
                 Runs this program in the background, waiting for FIDO credential dialog boxes to open and choosing the Security Key option each time.
@@ -176,13 +146,13 @@ public class Startup {
                 
             For more information, see https://github.com/Aldaviva/{PROGRAM_NAME}.
             Press Ctrl+C to copy this message.
-            """, $"{PROGRAM_NAME} {PROGRAM_VERSION} usage", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            """, $"{PROGRAM_NAME} {PROGRAM_VERSION} usage", Win32MessageBox.Kind.Information);
     }
 
     private static void onWindowsLogoff(object sender, SessionEndingEventArgs args) {
         logger?.Info("Exiting due to Windows session ending for {0}", args.Reason);
         SystemEvents.SessionEnding -= onWindowsLogoff;
-        Application.Exit();
+        requestExit();
     }
 
 }

@@ -10,7 +10,7 @@ namespace AuthenticatorChooser;
 /// <c>HKLM\SOFTWARE\Microsoft\FIDO\&lt;user SID&gt;\Plugins\&lt;plugin GUID&gt;</c>, where a <c>Name</c> value holds the
 /// display name shown in the "Choose a passkey" dialog.</para>
 /// </summary>
-public static class PasskeyProviderEnumerator {
+public static class PasskeyProviders {
 
     /// <summary>Lists the display names of all registered third-party passkey providers. Never throws, because the program must keep running.</summary>
     public static IReadOnlyList<string> enumerate() {

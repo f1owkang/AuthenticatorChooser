@@ -1,4 +1,3 @@
-using NLog;
 using System.Windows.Automation;
 using Unfucked;
 
@@ -48,10 +47,11 @@ public abstract class Win11Strategy(ChooserOptions options): PromptStrategy {
     }
 
     protected AutomationElement? getSecurityKeyChoice(IEnumerable<AutomationElement> authenticatorChoices) {
+        IReadOnlyCollection<AutomationElement> choices = authenticatorChoices as IReadOnlyCollection<AutomationElement> ?? authenticatorChoices.ToList();
+
         // #5: an authenticator chosen from the system tray menu takes priority over everything else
         if (options.preferredAuthenticator is { } preferredName) {
-            AutomationElement? preferredChoice = PriorityChooser.chooseBest(
-                authenticatorChoices as IReadOnlyCollection<AutomationElement> ?? authenticatorChoices.ToList(),
+            AutomationElement? preferredChoice = PriorityChooser.chooseBest(choices,
                 new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { [preferredName] = 1000 },
                 I18N.getStrings(I18N.Key.SECURITY_KEY), I18N.getStrings(I18N.Key.SMARTPHONE));
             if (preferredChoice != null) {
@@ -63,7 +63,7 @@ public abstract class Win11Strategy(ChooserOptions options): PromptStrategy {
 
         if (options.priorityFile != null) {
             // #63: consult the user-configured priority list, falling back to USB if nothing else is preferred
-            AutomationElement? preferred = PriorityChooser.chooseBest(authenticatorChoices as IReadOnlyCollection<AutomationElement> ?? authenticatorChoices.ToList(),
+            AutomationElement? preferred = PriorityChooser.chooseBest(choices,
                 PriorityChooser.load(options.priorityFile), I18N.getStrings(I18N.Key.SECURITY_KEY), I18N.getStrings(I18N.Key.SMARTPHONE));
             if (preferred != null) {
                 LOGGER.Info("Selected authenticator option \"{name}\" according to priority list", preferred.Current.Name);

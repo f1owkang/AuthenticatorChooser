@@ -1,5 +1,4 @@
 using ManagedWinapi.Windows;
-using NLog;
 using System.Runtime.InteropServices;
 using System.Windows.Automation;
 using System.Windows.Input;
@@ -7,13 +6,13 @@ using Unfucked;
 
 namespace AuthenticatorChooser.Windows11;
 
-public class WindowsSecurityKeyChooser(ChooserOptions options): AbstractSecurityKeyChooser<SystemWindow> {
+public class WindowsChooser(ChooserOptions options): AbstractChooser<SystemWindow> {
 
     // #4: unfortunately, this class name is shared with the UAC prompt, detectable when desktop dimming is disabled
     private const string WINDOW_CLASS_NAME  = "Credential Dialog Xaml Host";
     private const string ALT_TAB_CLASS_NAME = "XamlExplorerHostIslandWindow";
 
-    private static readonly Logger LOGGER = LogManager.GetLogger(typeof(WindowsSecurityKeyChooser).FullName!);
+    private static readonly Logger LOGGER = LogManager.GetLogger(typeof(WindowsChooser).FullName!);
 
     private static readonly Condition TITLE_CONDITION = new PropertyCondition(AutomationElement.ClassNameProperty, "TextBlock");
 

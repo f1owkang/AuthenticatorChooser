@@ -9,10 +9,8 @@ namespace AuthenticatorChooser;
 /// </summary>
 public static class AutostartManager {
 
-    private const string PROGRAM_NAME = nameof(AuthenticatorChooser);
-
     /// <summary>Name of the scheduled task used to start the program at logon.</summary>
-    public static string taskName => $"{PROGRAM_NAME} \u2013 {Environment.UserName}";
+    public static string taskName => $"{Startup.PROGRAM_NAME} \u2013 {Environment.UserName}";
 
     /// <summary>Whether the logon scheduled task currently exists.</summary>
     public static bool isEnabled() {
@@ -32,7 +30,7 @@ public static class AutostartManager {
             scheduledTask.RegistrationInfo.Author      = "Ben Hutchison";
             scheduledTask.RegistrationInfo.Date        = DateTime.Now;
             scheduledTask.RegistrationInfo.Description =
-                $"{PROGRAM_NAME} is a background program that skips the phone pairing option and chooses the USB security key in Windows FIDO/WebAuthn prompts. \n\nThis scheduled task is necessary to start {PROGRAM_NAME} for you on login with elevated permissions, which are required to interact with the Windows 11 FIDO prompts beginning in January 2026. \n\nhttps://github.com/Aldaviva/{PROGRAM_NAME}";
+                $"{Startup.PROGRAM_NAME} is a background program that skips the phone pairing option and chooses the USB security key in Windows FIDO/WebAuthn prompts. \n\nThis scheduled task is necessary to start {Startup.PROGRAM_NAME} for you on login with elevated permissions, which are required to interact with the Windows 11 FIDO prompts beginning in January 2026. \n\nhttps://github.com/Aldaviva/{Startup.PROGRAM_NAME}";
             scheduledTask.Principal.RunLevel                  = TaskRunLevel.Highest; // #44: CredentialUIBroker runs with UIAccess integrity level
             scheduledTask.Settings.Enabled                    = true;
             scheduledTask.Settings.ExecutionTimeLimit         = TimeSpan.Zero;
@@ -47,7 +45,7 @@ public static class AutostartManager {
             using RegistryKey? userRun = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
             if (userRun is not null) {
                 try {
-                    userRun.DeleteValue(PROGRAM_NAME, true);
+                    userRun.DeleteValue(Startup.PROGRAM_NAME, true);
                 } catch (ArgumentException) {
                     // value had already been removed
                 }

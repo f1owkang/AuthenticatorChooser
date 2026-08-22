@@ -106,7 +106,7 @@ public static partial class I18N {
     // #18: The most-preferred language pack can be missing MUI files if it was installed after Windows, so always fall back to all other preferred languages
     private static IList<string> getStrings(IEnumerable<string> compiledResourceNames, params IEnumerable<IEnumerable<string>> libraryStrings) =>
         compiledResourceNames.SelectMany(compiledResourceName => LOCALE_NAMES.Select(locale =>
-                LocalizedStrings.ResourceManager.GetString(compiledResourceName, CultureInfo.GetCultureInfo(locale))))
+                UiLanguage.getEmbeddedString(compiledResourceName, locale)))
             .Concat(libraryStrings.SelectMany(list => list))
             .Compact().Distinct(STRING_COMPARER).ToList();
 

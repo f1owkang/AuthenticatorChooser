@@ -148,7 +148,7 @@
     <value>Making sure it's you</value>
   </data>
   <data name="trayEnableAutomaticSelection" xml:space="preserve">
-    <value>Enable automatic security key selection</value>
+    <value>Auto select</value>
   </data>
   <data name="trayExit" xml:space="preserve">
     <value>Exit</value>
@@ -157,25 +157,25 @@
     <value>Language</value>
   </data>
   <data name="trayFollowSystemLanguage" xml:space="preserve">
-    <value>Follow system language</value>
+    <value>Follow system</value>
   </data>
   <data name="trayAuthenticator" xml:space="preserve">
-    <value>Preferred authenticator</value>
+    <value>Method</value>
   </data>
   <data name="trayAuthenticatorDefault" xml:space="preserve">
-    <value>Default (automatic)</value>
+    <value>Default</value>
   </data>
   <data name="trayAuthenticatorUsb" xml:space="preserve">
-    <value>USB security key</value>
+    <value>USB key</value>
   </data>
   <data name="trayAuthenticatorPairNewPhone" xml:space="preserve">
-    <value>Pair a new phone</value>
+    <value>Pair phone</value>
   </data>
   <data name="trayAuthenticatorUseExistingPhone" xml:space="preserve">
-    <value>Use an existing phone</value>
+    <value>Existing phone</value>
   </data>
   <data name="trayAutostartOnLogon" xml:space="preserve">
-    <value>Start automatically at logon</value>
+    <value>Auto start</value>
   </data>
   <data name="autostartRegisterFailed" xml:space="preserve">
     <value>Failed to register the program to start automatically at logon.</value>
