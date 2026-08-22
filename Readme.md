@@ -20,25 +20,17 @@
 
 ## 问题 / Problem
 
-**中文**：当某个程序（例如支持 WebAuthn 的浏览器）请求认证时，Windows 可能会显示 Windows 安全凭据提示，允许你使用 FIDO 认证器完成身份验证，例如 USB 安全密钥，或保存在电脑 TPM 中、由 Windows Hello PIN 或指纹等生物识别信息保护的通配密钥。
+**中文**：当浏览器等程序通过 WebAuthn 请求认证时，Windows 会显示安全凭据弹窗，可用 USB 安全密钥，或保存在电脑 TPM 中、由 Windows Hello PIN 或生物识别保护的通行密钥完成认证。
 
-在 Windows 10 与 11（22H2 Moment 4 之前，即 2023 年 9 月之前），如果 TPM 中保存了向依赖方（如网站）完成认证所需的私钥，Windows 会优先要求用户输入该 TPM 认证器的质询（如 PIN 或指纹）；同时仍提供一个额外点击即可选择其他认证器（如 USB 安全密钥）的选项。反之，如果 TPM 中没有所需密钥，Windows 会立即提示你插入 USB 安全密钥。
+Windows 11 [22H2 Moment 4](https://www.bleepingcomputer.com/news/microsoft/windows-11-moment-4-update-released-here-are-the-many-new-features/)（2023 年 9 月）及更高版本（含 [23H2](https://www.bleepingcomputer.com/news/microsoft/windows-11-23h2-new-features-in-the-windows-11-2023-update/)）新增了「选择通行密钥」步骤：弹窗要求先指明使用「iPhone、iPad 或 Android 设备」还是「安全密钥」，选择 USB 安全密钥需额外一次点击或三次按键；即使关闭蓝牙、没有 Android/iOS 设备也无法跳过该弹窗，且 Windows 不会记住你的上次选择。在此之前的版本中，若 TPM 中没有所需密钥，Windows 会直接提示插入 USB 安全密钥。
 
-<p align="center"><img src=".github/images/usb-prompt.png" alt="usb security key prompt" width="456" /></p> 
-
-在 Windows 11 [22H2 Moment 4](https://www.bleepingcomputer.com/news/microsoft/windows-11-moment-4-update-released-here-are-the-many-new-features/)（2023 年 9 月）及更高版本（包括 [23H2](https://www.bleepingcomputer.com/news/microsoft/windows-11-23h2-new-features-in-the-windows-11-2023-update/)）中，行为发生了变化：现在可以通过蓝牙配对 Android 和 iOS 设备来使用其上的通配密钥，这在一定程度上缓解了通配密钥无法随 TPM 之外携带的问题。如果 Windows TPM 中含有该通配密钥，行为不变；但如果本地 TPM 中没有该密钥，则在插入 USB 安全密钥之前，会额外增加一个「使用密钥登录 / 选择通行密钥」步骤。
-
-现在弹窗会显示「选择通行密钥」，你必须指明想使用「iPhone、iPad 或 Android 设备」还是「安全密钥」。选择 USB 安全密钥需要额外的一次点击或三次按键。即使你关闭蓝牙、没有 Android 或 iOS 设备、也从未想在本 Windows 电脑上使用它进行 FIDO 认证，也无法跳过这个新弹窗。Windows 同样不会记住你上次的选择。你也可以在设备管理器中禁用蓝牙设备，但这同样会禁用电脑上的其他蓝牙外设（如蓝牙鼠标、键盘、耳机、音箱）。
+<p align="center"><img src=".github/images/usb-prompt.png" alt="usb security key prompt" width="456" /></p>
 
 <p align="center"><img src=".github/images/authenticator-prompt.png" alt="authenticator prompt" width="456" /></p>
 
-**English**: Windows can display a Windows Security credential prompt when requested by a program, such as a browser with WebAuthn. This allows you to authenticate using a FIDO authenticator, such as a USB security key or a passkey in your computer's TPM protected by a Windows Hello PIN or biometrics, like a fingerprint.
+**English**: When a program (such as a WebAuthn-capable browser) requests authentication, Windows can show a security credential prompt that lets you authenticate with a USB security key or a passkey stored in the computer's TPM and protected by Windows Hello PIN or biometrics.
 
-In Windows 10 and 11 prior to 22H2 Moment 4 (September 2023), if the TPM contains the private key needed to authenticate to the relying party (like a website), Windows will prioritize prompting for the user's challenge (like a PIN or fingerprint) for this TPM authenticator first. Windows will still provide an option to choose a different authenticator (like a USB security key) with an additional click. Otherwise, if the TPM does not contain the required secret, Windows will immediately prompt you to insert a USB security key.
-
-In Windows 11 [22H2 Moment 4](https://www.bleepingcomputer.com/news/microsoft/windows-11-moment-4-update-released-here-are-the-many-new-features/) (September 2023) and later (including [23H2](https://www.bleepingcomputer.com/news/microsoft/windows-11-23h2-new-features-in-the-windows-11-2023-update/)), this behavior changed to include the ability to pair with Android and iOS devices over Bluetooth to use their passkeys, which somewhat ameliorates the problem of passkeys not being portable outside their TPM. The behavior is unchanged if the Windows TPM contains the passkey. However, if the local TPM does not contain the passkey, an additional "Sign in with your passkey"/"Choose a passkey" step was added before you can use your USB security key.
-
-Now it says "Choose a passkey," and you have to indicate whether you want to use an "iPhone, iPad, or Android device" or a "Security key." Choosing the USB security key requires one additional click or three additional keystrokes. It is impossible to opt out of this new prompt, even if you turn off Bluetooth, don't have an Android or iOS device, or never want to use it for FIDO authentication on your Windows computer. Windows does not remember the most recently used choice, either. You could disable your Bluetooth device in Device Manager, but this will also prevent you from using any other Bluetooth peripherals with your computer, such as Bluetooth mice, keyboards, headphones, and speakers.
+Windows 11 [22H2 Moment 4](https://www.bleepingcomputer.com/news/microsoft/windows-11-moment-4-update-released-here-are-the-many-new-features/) (September 2023) and later (including [23H2](https://www.bleepingcomputer.com/news/microsoft/windows-11-23h2-new-features-in-the-windows-11-2023-update/)) added a "Choose a passkey" step: the prompt first asks whether to use an "iPhone, iPad, or Android device" or a "Security key", and picking the USB security key costs an extra click or three keystrokes. You cannot opt out of this step even without Bluetooth or any Android/iOS device, and Windows does not remember your choice. In earlier versions, if the TPM did not contain the required key, Windows would directly prompt you to insert a USB security key.
 
 ## 解决方案 / Solution
 
@@ -54,17 +46,17 @@ Internally, this program uses [Microsoft UI Automation](https://learn.microsoft.
 
 ### 覆盖自动行为 / Overriding the automatic next behavior
 
-**中文**：默认情况下，本程序不会干预本地 TPM 通配密钥弹窗（例如请求输入 Windows Hello PIN 或生物识别）。如果 FIDO 弹窗中包含除「USB 安全密钥」和「配对新的蓝牙手机」以外的其他选项——例如你已配对过手机，或你之前拒绝过 PIN 等 Windows Hello 因子而现在想从认证器选择弹窗中再次尝试 PIN——程序也不会自动提交。不过，如果你希望强制在所有情况下都选择 USB 安全密钥，即使还有其他有效选项（如 Windows Hello PIN/生物识别），可以在启动本程序时传入命令行参数 `--skip-all-non-security-key-options`（如果想改自动启动配置，参见[安装](#安装--installation)一节中推荐的自动启动方式）。
+**中文**：默认情况下，本程序不会干预本地 TPM 通配密钥弹窗（例如请求输入 Windows Hello PIN 或生物识别）。如果 FIDO 弹窗中包含除「USB 安全密钥」和「配对新的蓝牙手机」以外的其他选项——例如你已配对过手机，或你之前拒绝过 PIN 等 Windows Hello 因子而现在想从认证器选择弹窗中再次尝试 PIN——程序也不会自动提交。如果你希望在大多数情况下都优先选择 USB 安全密钥，可以在托盘菜单的「首选验证方法」中选中「USB 安全密钥」（详见[系统托盘图标](#系统托盘图标--system-tray-icon)）；仅当你想强制在**所有**情况下都选择 USB 安全密钥、即使还有其他有效选项（如 Windows Hello PIN/生物识别）时，才使用命令行参数 `--skip-all-non-security-key-options`。
 
-如果对话框中出现已配对的手机选项而你想移除它，[可以编辑注册表取消配对已有手机](https://github.com/Aldaviva/AuthenticatorChooser/wiki/Unpairing-Bluetooth-smartphone)。当你的旧手机[变砖](https://en.wikipedia.org/wiki/Pixel_5a#Known_issues)，或刚换新手机时，这会很有用。
+如果对话框中出现已配对的手机选项而你想移除它，可以编辑注册表取消配对已有手机（当你的旧手机[变砖](https://en.wikipedia.org/wiki/Pixel_5a#Known_issues)或刚换新手机时，这会很有用）。
 
 如果本程序在你不想让它跳过的时候跳过了认证器选择弹窗（例如你只是想偶尔用一次手机蓝牙通配密钥），你可以在弹窗出现时按住 <kbd>Shift</kbd>，临时禁止本程序自动提交一次安全密钥选择。
 
 即使本程序没有点击「下一步」按钮（因为存在额外选项，或你正按住 <kbd>Shift</kbd>），它仍会高亮「安全密钥」选项并聚焦「下一步」按钮，因此你只需按 <kbd>Enter</kbd> 或 <kbd>Space</kbd> 即可选择安全密钥。
 
-**English**: By default, this program does not interfere with local TPM passkey prompts (like requesting your Windows Hello PIN or biometrics). It also does not automatically submit FIDO prompts that contain additional options besides a USB security key and pairing a new Bluetooth smartphone, such as the cases when you already have a paired phone, or you previously declined a Windows Hello factor like a PIN but want to try a PIN again from the authenticator choice dialog. However, you may override this behavior if you wish and force it to **_always_** choose the USB security key in all cases, even if there are other valid options like Windows Hello PIN/biometrics, by passing the command-line argument `--skip-all-non-security-key-options` when starting this program (see [Installation](#安装--installation) for the recommended autostart paths if you want to change it there).
+**English**: By default, this program does not interfere with local TPM passkey prompts (like requesting your Windows Hello PIN or biometrics). It also does not automatically submit FIDO prompts that contain additional options besides a USB security key and pairing a new Bluetooth smartphone, such as the cases when you already have a paired phone, or you previously declined a Windows Hello factor like a PIN but want to try a PIN again from the authenticator choice dialog. If you'd like to prefer the USB security key in most cases, choose "USB security key" under **Preferred authenticator** in the tray menu (see [System tray icon](#系统托盘图标--system-tray-icon)); only use the `--skip-all-non-security-key-options` command-line argument if you want to force the USB security key in **_all_** cases, even when other valid options like Windows Hello PIN/biometrics are present.
 
-If a paired phone option appears in the dialog box and you want to remove it, [you can edit the registry to unpair an existing phone](https://github.com/Aldaviva/AuthenticatorChooser/wiki/Unpairing-Bluetooth-smartphone). This is useful if your old phone [bricked itself](https://en.wikipedia.org/wiki/Pixel_5a#Known_issues), or if you just upgraded to a new phone.
+If a paired phone option appears in the dialog box and you want to remove it, you can edit the registry to unpair an existing phone (useful if your old phone [bricked itself](https://en.wikipedia.org/wiki/Pixel_5a#Known_issues), or if you just upgraded to a new phone).
 
 If this program skips the authenticator choice dialog when you don't want it to, for example, if you want to use a smartphone Bluetooth passkey only once or infrequently, you can hold <kbd>Shift</kbd> when the dialogs appear to temporarily suppress this program from automatically submitting the security key choice once.
 
@@ -72,31 +64,27 @@ Even if this program doesn't click the Next button (because an extra choice was 
 
 ### 自动填 PIN / Auto-filling the security key PIN
 
-**中文**：自 2025 年 9 月起，Windows 11 的更新要求 FIDO2 安全密钥在每次认证时都输入 PIN。如果你希望程序在缓存有效期内自动替你填入并提交 PIN，可以**右键系统托盘图标 → 点击「安全密钥 PIN」**（勾选表示已缓存），或在命令行运行一次：
+**中文**：自 2025 年 9 月起，Windows 11 的更新要求 FIDO2 安全密钥在每次认证时都输入 PIN。如果你希望程序在缓存有效期内自动替你填入并提交 PIN，**右键系统托盘图标 → 点击「安全密钥 PIN」**（勾选表示已缓存），打开下方对话框：
 
-```ps1
-.\AuthenticatorChooser --set-pin
-```
+<p align="center"><img src=".github/images/pin-en.png" alt="安全密钥 PIN 缓存对话框（English）" width="380" /> <img src=".github/images/pin-cn.png" alt="安全密钥 PIN 缓存对话框（中文）" width="380" /></p>
 
-两者都会打开同一个对话框，在其中输入你的安全密钥 PIN（只通过对话框输入，不会出现在命令行或进程列表中）。PIN 会被**加密后缓存在内存中**（使用 Windows `CryptProtectMemory`，进程级密钥，内存中不保留明文；也从不写入磁盘），并在 `--pin-cache-ttl` 秒内有效（默认 600 秒，参考 gpg-agent 的 `default-cache-ttl`）；传 `--pin-cache-ttl=0` 表示缓存一直有效直到程序重启。由于只存内存，程序每次重启后都需要重新缓存。该功能只适用于**单把安全密钥**——如果检测到插着多把密钥，程序会拒绝缓存，以免把某把密钥的 PIN 输进另一把密钥导致其被锁死。要清除缓存的 PIN，再次打开该对话框并选择「清除已缓存 PIN」。此外，你还可以传 `--pin-clear-on-lock`、`--pin-clear-on-sleep`、`--pin-clear-on-hibernate`，让程序分别在 Windows 锁屏、睡眠、休眠时自动清除缓存的 PIN（睡眠与休眠在系统层面都是同一个挂起事件，因此这两个选项行为相同），程序退出时也会自动清零缓存。注意：即使内存加密，任何能操作这台电脑的人仍可能在你使用密钥期间借它完成认证，请自行权衡（更完整的风险说明见[安全](#安全--security)一节的免责声明）。
+在对话框中输入你的安全密钥 PIN 并点击「缓存 PIN」（只通过对话框输入，不会出现在命令行或进程列表中）。PIN 会被**加密后缓存在内存中**（Windows `CryptProtectMemory`，进程级密钥，从不写入磁盘），默认 600 秒后过期——过期时长与失效时机均可在托盘菜单的「PIN 设置」中调整（详见[系统托盘图标](#系统托盘图标--system-tray-icon)）。该功能只适用于**单把安全密钥**——插着多把密钥时程序会拒绝缓存，以免把某把密钥的 PIN 输进另一把密钥导致其被锁死。要清除缓存的 PIN，再次打开该对话框并选择「清除已缓存 PIN」，或启用托盘菜单中的「锁屏 / 睡眠 / 休眠时失效」。注意：即使内存加密，任何能操作这台电脑的人仍可能在你使用密钥期间借它完成认证，请自行权衡（完整风险说明见[安全](#安全--security)一节的免责声明）。
 
-另外，如果你不想让程序替你填写 PIN，而只希望自己输入完成后省去按回车，可以传入 `--autosubmit-pin-length=$num`：当 Windows 弹出安全密钥的 FIDO2 PIN 输入框时，程序会在你输入满 $num 个字符后自动提交该对话框（最少 4 位）。请谨慎输入——连续输错足够多次（YubiKey 为 8 次）会永久锁定安全密钥，直到你重置它并丢失全部 FIDO 凭据。该选项不会在注册新 FIDO 凭据、修改 PIN 或输入 Windows Hello PIN（Windows 会自行自动提交）时自动提交。
+高级（命令行）：如果你只想自己输入 PIN 后省去按回车，可传入 `--autosubmit-pin-length=$num`，程序会在你输入满 $num 个字符后自动提交该对话框（最少 4 位）。请谨慎输入——连续输错足够多次（YubiKey 为 8 次）会永久锁定安全密钥，直到你重置它并丢失全部 FIDO 凭据。该选项不会在注册新 FIDO 凭据、修改 PIN 或输入 Windows Hello PIN（Windows 会自行自动提交）时自动提交。
 
-**English**: Since September 2025, Windows 11 updates require a FIDO2 security key to be unlocked with its PIN on every assertion. If you'd like the program to fill in and submit the PIN for you while it is cached, **right-click the system tray icon and choose "Security key PIN"** (checked when a PIN is cached), or run this once on the command line:
+**English**: Since September 2025, Windows 11 updates require a FIDO2 security key to be unlocked with its PIN on every assertion. If you'd like the program to fill in and submit the PIN for you while it is cached, **right-click the system tray icon and choose "Security key PIN"** (checked when a PIN is cached) to open the dialog above.
 
-```ps1
-.\AuthenticatorChooser --set-pin
-```
+Type your security key PIN in the dialog and click "Cache PIN" (it is only ever entered in the dialog, never on a command line). The PIN is cached **encrypted in memory** (Windows `CryptProtectMemory`, a per-process key, never written to disk) and expires after 600 seconds by default — both the expiry and the forget timing are adjustable in the tray menu's "PIN settings" (see [System tray icon](#系统托盘图标--system-tray-icon)). This only works with a **single security key** — if more than one key is attached, the program refuses to cache the PIN rather than risk entering one key's PIN into another and locking it out. To clear the cached PIN, open the dialog again and choose "Clear cached PIN", or enable "Forget on lock / sleep / hibernate" in the tray menu. Note that even encrypted in memory, anyone who can operate this computer as you could use your key while you are authenticated; weigh the trade-off before enabling it (see the disclaimer in the [Security](#安全--security) section for a fuller statement of the risks).
 
-Both open the same dialog, where you type your security key PIN (it is only ever entered in the dialog, never on a command line). The PIN is cached **encrypted in memory** (Windows `CryptProtectMemory`, a per-process key, so the plaintext never sits in memory, and it is never written to disk), valid for `--pin-cache-ttl` seconds (default 600 s, mirroring gpg-agent's `default-cache-ttl`); pass `--pin-cache-ttl=0` to keep it valid until the program restarts. Because it is memory-only, you must cache the PIN again after every restart. This only works with a **single security key** — if more than one key is attached, the program refuses to cache the PIN rather than risk entering one key's PIN into another and locking it out. To clear the cached PIN, open the dialog again and choose "Clear cached PIN". You can also pass `--pin-clear-on-lock`, `--pin-clear-on-sleep`, or `--pin-clear-on-hibernate` to have the program automatically forget the cached PIN when Windows locks, sleeps, or hibernates (sleep and hibernation both surface as the same suspend event, so those two options behave identically), and the cache is zeroed when the program exits. Note that even encrypted in memory, anyone who can operate this computer as you could use your key while you are authenticated; weigh the trade-off before enabling it (see the disclaimer in the [Security](#安全--security) section for a fuller statement of the risks).
-
-Separately, if you'd rather keep typing the PIN yourself but skip the final <kbd>Enter</kbd>, pass `--autosubmit-pin-length=$num`: when Windows shows the FIDO2 PIN prompt for your USB security key, the program auto-submits the dialog once you have typed $num characters (minimum 4). Type with care — enough consecutive wrong submissions (8 on YubiKeys) will permanently block the security key until you reset it and lose all its FIDO credentials. It will neither auto-submit when registering a new FIDO credential, changing your PIN, nor when entering a Windows Hello PIN (which Windows auto-submits on its own).
+Advanced (command line): if you'd rather keep typing the PIN yourself but skip the final <kbd>Enter</kbd>, pass `--autosubmit-pin-length=$num`: when Windows shows the FIDO2 PIN prompt for your USB security key, the program auto-submits the dialog once you have typed $num characters (minimum 4). Type with care — enough consecutive wrong submissions (8 on YubiKeys) will permanently block the security key until you reset it and lose all its FIDO credentials. It will neither auto-submit when registering a new FIDO credential, changing your PIN, nor when entering a Windows Hello PIN (which Windows auto-submits on its own).
 
 ### 第三方 passkey 提供商（优先级文件）/ Choosing among third-party passkey providers (priority file)
 
 **中文**：Windows 25H2 允许 1Password、Bitwarden、KeePass 等密码管理器注册为 passkey 提供商，从而在「选择通行密钥」弹窗中增加额外选项。默认情况下，本程序一旦发现某个选项既不是 USB 安全密钥、也不是配对手机，就会停止自动提交——因为它无法判断你是否更想使用密码管理器。
 
-要指定优先选择哪个选项，请在可执行文件旁创建 `priority.txt` 文件（或用 `--priority-file=PATH` 指向其他路径）。每行格式如下：
+**最简单的方式**：托盘菜单的「首选验证方法」会自动列出系统中已注册的第三方 passkey 提供商，直接点选即可让程序优先使用它（详见[系统托盘图标](#系统托盘图标--system-tray-icon)）。
+
+高级（优先级文件）：如需更精细的优先级规则，可在可执行文件旁创建 `priority.txt` 文件（或用 `--priority-file=PATH` 指向其他路径）。每行格式如下：
 
 ```
 对话框中显示的选项名称 = 优先级数字
@@ -129,7 +117,9 @@ Bitwarden = 100
 
 **English**: Windows 25H2 lets password managers like 1Password, Bitwarden, KeePass, and others register as passkey providers, which adds their names as extra options in the "Choose a passkey" dialog. By default this program stops (does not auto-submit) whenever it sees an option that is neither the USB security key nor pairing a new phone, because it can't know whether you'd prefer the password manager.
 
-To choose which option to prefer, create a `priority.txt` file next to the executable (or point to another path with `--priority-file=PATH`). Each line has the form:
+**The simplest way**: the tray menu's "Preferred authenticator" automatically lists the third-party passkey providers registered on your system — just pick one to have the program prefer it (see [System tray icon](#系统托盘图标--system-tray-icon)).
+
+Advanced (priority file): for finer-grained priority rules, create a `priority.txt` file next to the executable (or point to another path with `--priority-file=PATH`). Each line has the form:
 
 ```
 Display name as it appears in the dialog = priority number
@@ -164,6 +154,8 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 
 **中文**：程序运行期间会在系统托盘中显示一个图标。右键点击它，可以：
 
+<p align="center"><img src=".github/images/main-en.png" alt="系统托盘主菜单（English）" width="340" /> <img src=".github/images/main-cn.png" alt="系统托盘主菜单（中文）" width="340" /></p>
+
 - **启用 / 禁用自动选择安全密钥** —— 禁用后，程序完全不触碰任何 FIDO 弹窗，当你需要手动选择其他认证器或密码管理器中保存的 passkey 时很有用。
 - **首选验证方法（Preferred authenticator）** —— 子菜单中列出了本系统当前可用的验证方法（自动从系统获取），包括「默认（自动）」「USB 安全密钥」「配对手机」「使用已有手机」，以及系统中已注册的第三方 passkey 提供商（如 1Password、Bitwarden）。选择后，程序在 FIDO 弹窗出现时会优先选择该方法。与 `--priority-file` 配合使用时可覆盖其优先级。
 - **语言（Language）** —— 子菜单中可切换界面语言，支持「跟随系统语言」、English、简体中文、繁體中文，切换后立即生效，无需重启。
@@ -190,6 +182,8 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 
 The following preferences are persisted to `%APPDATA%\AuthenticatorChooser\settings.json` and restored after a restart: the UI language, the automatic-selection toggle, the preferred authenticator, and the PIN cache TTL and lock/sleep/hibernate toggles. The PIN itself is never written to disk.
 
+<p align="center"><img src=".github/images/settings-en.png" alt="PIN 设置子菜单（English）" width="340" /> <img src=".github/images/settings-cn.png" alt="PIN 设置子菜单（中文）" width="340" /></p>
+
 ## 系统要求 / Requirements
 
 **中文**：
@@ -213,12 +207,8 @@ The following preferences are persisted to `%APPDATA%\AuthenticatorChooser\setti
     - 发布版为框架依赖的单文件（约 2 MB），首次运行前需安装 [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)。
 1. 双击 `AuthenticatorChooser.exe` 运行程序。
     - 程序没有主窗口，运行后驻留在系统托盘中（右键托盘图标可打开设置菜单），但你可以通过任务管理器中搜索 `AuthenticatorChooser` 来确认它在运行。
-1. 使用**以下任意一种**方式注册程序在用户登录时自动运行。如果你还想指定额外的[命令行参数](https://github.com/Aldaviva/AuthenticatorChooser/wiki/Command%E2%80%90line-arguments)（如 `--skip-all-non-security-key-options`），也可以在这里一并设置。
-    - 用 `--autostart-on-logon` 参数运行一次本程序
-        ```ps1
-        .\AuthenticatorChooser --autostart-on-logon
-        ```
-    - 在任务计划程序中手动新建一个任务，在登录 Windows 时以你的用户身份、最高权限启动 `AuthenticatorChooser.exe`
+1. 若希望在登录 Windows 时自动运行，**右键系统托盘图标 → 勾选「开机自启」**（详见[系统托盘图标](#系统托盘图标--system-tray-icon)）。如果你还想指定额外的命令行参数（如 `--skip-all-non-security-key-options`），也可以在启动程序时一并传入。
+    - 等效地，也可以在命令行运行一次 `.\AuthenticatorChooser --autostart-on-logon`，或自行在任务计划程序中新建一个以你的用户身份、最高权限启动 `AuthenticatorChooser.exe` 的任务。
 
 **English**:
 
@@ -227,11 +217,8 @@ The following preferences are persisted to `%APPDATA%\AuthenticatorChooser\setti
     - The release is a framework-dependent single file (~2 MB); install the [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) before the first run.
 1. Run the program by double-clicking `AuthenticatorChooser.exe`.
     - No main window will appear — the program runs in the system tray (right-click its icon for the settings menu) — but you can tell it's running by searching for `AuthenticatorChooser` in Task Manager.
-1. Register the program to run automatically on user logon with **any one** of the following techniques. If you'd like to specify additional [command-line arguments](https://github.com/Aldaviva/AuthenticatorChooser/wiki/Command%E2%80%90line-arguments) like `--skip-all-non-security-key-options`, you can do that here too.
-    - Run this program once with the `--autostart-on-logon` argument
-        ```ps1
-        .\AuthenticatorChooser --autostart-on-logon
-        ```
+1. To start automatically when you log in to Windows, **right-click the tray icon and check "Start automatically at logon"** (see [System tray icon](#系统托盘图标--system-tray-icon)). If you'd like to specify additional command-line arguments like `--skip-all-non-security-key-options`, you can pass them when launching the program too.
+    - Alternatively, run `.\AuthenticatorChooser --autostart-on-logon` once on the command line, or create a Task Scheduler task that starts `AuthenticatorChooser.exe` as your user with highest privileges.
     - Manually add a new task to Task Scheduler that starts `AuthenticatorChooser.exe` as your user with highest privileges when you log in to Windows
 
 ## 安全 / Security
@@ -320,10 +307,6 @@ You can also use an IDE like [Visual Studio](https://visualstudio.microsoft.com/
 
 ### 创建新 passkey / Creating new passkeys
 
-**中文**：当你在浏览器中尝试创建 passkey 时，网站可能会强制要求只保存在 TPM 或只保存在安全密钥上，而不是让你自由选择两种存储位置。要覆盖网站的限制、让你重新掌控新 passkey 的保存位置，可以安装 [**Create Passkeys Anywhere** 用户脚本](https://github.com/Aldaviva/userscripts/raw/master/create-passkeys-anywhere.user.js)（需要 [Tampermonkey](https://tampermonkey.net/) 或类似的浏览器扩展）。它不只支持 Windows，例如在 Firefox for Android 上同样可用。
+**中文**：当网站强制要求新 passkey 只能保存在 TPM 或安全密钥上时，可安装 [**Create Passkeys Anywhere** 用户脚本](https://github.com/Aldaviva/userscripts/raw/master/create-passkeys-anywhere.user.js)（需要 [Tampermonkey](https://tampermonkey.net/) 等扩展，Windows 与 Android 浏览器均可用）。安装后每次创建 passkey 都会询问存储位置；也可编辑脚本源码中的 `options.allowedPasskeyCreationStorage`（`anywhere` / `securityKey` / `tpm`）来限定保存位置。
 
-安装该脚本后，默认情况下每次创建新 passkey 时都会询问你要保存在安全密钥上还是 TPM 中。你也可以通过编辑脚本源码中的 `options.allowedPasskeyCreationStorage` 值来覆盖此行为：若将其从 `anywhere` 改为 `securityKey`，则只允许把新 passkey 保存在安全密钥上；若改为 `tpm`，则只允许保存在 TPM 中。
-
-**English**: When you try to create a passkey in your browser, the website may force it to be stored only in the TPM or only on a security key, rather than letting you freely choose between the two destinations. To override the site's mandate and put yourself back in control of where your new passkey will be saved, you can install my [**Create Passkeys Anywhere** user script](https://github.com/Aldaviva/userscripts/raw/master/create-passkeys-anywhere.user.js) (requires [Tampermonkey](https://tampermonkey.net/) or a similar browser extension). It doesn't only run on Windows, for example it also works on Firefox for Android.
-
-With this script installed, you will by default always be asked whether to save each new passkey on a security key or in the TPM. If you want to override this behavior, you can also configure the user script by editing the `options.allowedPasskeyCreationStorage` value in the script source. If you change it from `anywhere` to `securityKey`, it will only allow you to save new passkeys on security keys, and if you change it to `tpm`, it will only allow them to be saved in the TPM.
+**English**: When a website forces a new passkey to be stored only in the TPM or only on a security key, install my [**Create Passkeys Anywhere** user script](https://github.com/Aldaviva/userscripts/raw/master/create-passkeys-anywhere.user.js) (requires [Tampermonkey](https://tampermonkey.net/) or similar; works on Windows and Android browsers). It then asks where to save each new passkey; you can also set `options.allowedPasskeyCreationStorage` in the script source (`anywhere` / `securityKey` / `tpm`) to restrict the destination.
