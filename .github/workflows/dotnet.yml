@@ -3,6 +3,7 @@ name: .NET
 on:
   push:
     branches: [ master ]
+    tags: [ '*' ]
   workflow_dispatch:
 
 jobs:
@@ -25,6 +26,7 @@ jobs:
     - name: Clone
       uses: actions/checkout@v6
         
+    # The csproj declares RuntimeIdentifiers win-x64;win-arm64, so one locked-mode restore covers both RIDs.
     - name: Restore
       run: dotnet restore --locked-mode
 
@@ -38,9 +40,35 @@ jobs:
     - name: Publish
       run: dotnet publish ${{ env.ProjectName }} --no-build --runtime ${{ matrix.targetPlatform }} --configuration Release -p:PublishSingleFile=true
 
+    # Per-architecture ZIP so the win-x64 and win-arm64 assets never collide on a release, matching the README's
+    # "download the release ZIP archive" wording.
+    - name: Package release asset
+      shell: pwsh
+      run: |
+        $exe = "${{ env.ProjectName }}/bin/Release/net10.0-windows10.0.19041.0/${{ matrix.targetPlatform }}/publish/${{ env.ProjectName }}.exe"
+        Compress-Archive -Path $exe -DestinationPath "${{ env.ProjectName }}-${{ matrix.targetPlatform }}.zip" -Force
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v7
       with:
         name: ${{ env.ProjectName }}-${{ matrix.targetPlatform }}
-        path: ${{ env.ProjectName }}/bin/Release/net10.0-windows10.0.19041.0/${{ matrix.targetPlatform }}/publish/*
+        path: ${{ env.ProjectName }}-${{ matrix.targetPlatform }}.zip
         if-no-files-found: error
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download release assets
+        uses: actions/download-artifact@v7
+        with:
+          path: assets
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: assets/*/*.zip
+          generate_release_notes: true

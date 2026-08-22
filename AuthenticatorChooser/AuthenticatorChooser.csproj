@@ -9,6 +9,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Version>0.6.0</Version>
+        <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
         <Authors>Ben Hutchison; f1owkang</Authors>
         <Copyright>© 2026 Ben Hutchison; f1owkang</Copyright>
         <Company>$(Authors)</Company>
@@ -68,6 +69,15 @@
     <Target Name="ExcludeSdkProjectionFromSingleFile" AfterTargets="ComputeResolvedFilesToPublishList">
         <ItemGroup>
             <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Filename)' == 'Microsoft.Windows.SDK.NET' or '%(Filename)' == 'WinRT.Runtime'" />
+        </ItemGroup>
+    </Target>
+
+    <!-- With RuntimeIdentifiers set, ComputeResolvedFilesToPublishList re-adds the satellite copies even though
+         RemoveEmbeddedSatelliteCopies dropped them from the intermediate list, and the single-file bundler then fails
+         because those intermediate DLLs were never generated. Drop them from the publish list too. -->
+    <Target Name="ExcludeSatelliteResourcesFromPublish" AfterTargets="ComputeResolvedFilesToPublishList">
+        <ItemGroup>
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Filename)' == 'AuthenticatorChooser.resources'" />
         </ItemGroup>
     </Target>
 
