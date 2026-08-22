@@ -320,7 +320,7 @@ You can also use an IDE like [Visual Studio](https://visualstudio.microsoft.com/
 
 ### 创建新 passkey / Creating new passkeys
 
-**中文**：当你在浏览器中尝试创建 passkey 时，网站可能会强制要求只保存在 TPM 或只保存在安全密钥上，而不是让你自由选择两种存储位置。要覆盖网站的限制、让你重新掌控新 passkey 的保存位置，可以安装我的 [**Create Passkeys Anywhere** 用户脚本](https://github.com/Aldaviva/userscripts/raw/master/create-passkeys-anywhere.user.js)（需要 [Tampermonkey](https://tampermonkey.net/) 或类似的浏览器扩展）。它不只支持 Windows，例如在 Firefox for Android 上同样可用。
+**中文**：当你在浏览器中尝试创建 passkey 时，网站可能会强制要求只保存在 TPM 或只保存在安全密钥上，而不是让你自由选择两种存储位置。要覆盖网站的限制、让你重新掌控新 passkey 的保存位置，可以安装 [**Create Passkeys Anywhere** 用户脚本](https://github.com/Aldaviva/userscripts/raw/master/create-passkeys-anywhere.user.js)（需要 [Tampermonkey](https://tampermonkey.net/) 或类似的浏览器扩展）。它不只支持 Windows，例如在 Firefox for Android 上同样可用。
 
 安装该脚本后，默认情况下每次创建新 passkey 时都会询问你要保存在安全密钥上还是 TPM 中。你也可以通过编辑脚本源码中的 `options.allowedPasskeyCreationStorage` 值来覆盖此行为：若将其从 `anywhere` 改为 `securityKey`，则只允许把新 passkey 保存在安全密钥上；若改为 `tpm`，则只允许保存在 TPM 中。
 

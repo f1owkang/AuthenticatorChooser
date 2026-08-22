@@ -9,8 +9,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Version>0.6.0</Version>
-        <Authors>Ben Hutchison</Authors>
-        <Copyright>© 2026 $(Authors)</Copyright>
+        <Authors>Ben Hutchison; f1owkang</Authors>
+        <Copyright>© 2026 Ben Hutchison; f1owkang</Copyright>
         <Company>$(Authors)</Company>
         <RollForward>major</RollForward>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
