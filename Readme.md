@@ -1,7 +1,7 @@
 <img src="AuthenticatorChooser/YubiKey.ico" height="24" alt="YubiKey 5 NFC USB-A" /> AuthenticatorChooser
 ===
 
-[![Download count](https://img.shields.io/github/downloads/Aldaviva/AuthenticatorChooser/total?logo=github)](https://github.com/Aldaviva/AuthenticatorChooser/releases) [![Build status](https://img.shields.io/github/actions/workflow/status/Aldaviva/AuthenticatorChooser/dotnet.yml?branch=master&logo=github)](https://github.com/Aldaviva/AuthenticatorChooser/actions/workflows/dotnet.yml)
+[![Download count](https://img.shields.io/github/downloads/f1owkang/AuthenticatorChooser/total?logo=github)](https://github.com/f1owkang/AuthenticatorChooser/releases) [![Build status](https://img.shields.io/github/actions/workflow/status/f1owkang/AuthenticatorChooser/dotnet.yml?branch=master&logo=github)](https://github.com/f1owkang/AuthenticatorChooser/actions/workflows/dotnet.yml)
 
 *后台程序，自动跳过「配对手机」选项，并在 Windows FIDO/WebAuthn 弹窗中自动选择「USB 安全密钥」。*
 *Background program that skips the phone pairing option and chooses the USB security key in Windows FIDO/WebAuthn prompts.*
@@ -208,7 +208,7 @@ The following preferences are persisted to `%APPDATA%\AuthenticatorChooser\setti
 
 **中文**：
 
-1. [下载与你 CPU 架构对应的最新发布版 ZIP 压缩包。](https://github.com/Aldaviva/AuthenticatorChooser/releases/latest)
+1. [下载与你 CPU 架构对应的最新发布版 ZIP 压缩包。](https://github.com/f1owkang/AuthenticatorChooser/releases/latest)
 1. 将压缩包中的 `AuthenticatorChooser.exe` 解压到你选择的目录，例如 `C:\Program Files\AuthenticatorChooser\`。
     - 发布版为框架依赖的单文件（约 2 MB），首次运行前需安装 [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)。
 1. 双击 `AuthenticatorChooser.exe` 运行程序。
@@ -222,7 +222,7 @@ The following preferences are persisted to `%APPDATA%\AuthenticatorChooser\setti
 
 **English**:
 
-1. [Download the latest release ZIP archive for your CPU architecture.](https://github.com/Aldaviva/AuthenticatorChooser/releases/latest)
+1. [Download the latest release ZIP archive for your CPU architecture.](https://github.com/f1owkang/AuthenticatorChooser/releases/latest)
 1. Extract the `AuthenticatorChooser.exe` file from the ZIP archive to a directory of your choice, like `C:\Program Files\AuthenticatorChooser\`.
     - The release is a framework-dependent single file (~2 MB); install the [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) before the first run.
 1. Run the program by double-clicking `AuthenticatorChooser.exe`.
@@ -262,18 +262,18 @@ The program only interacts with FIDO dialogs owned by **Microsoft-signed system 
 
 ## 构建 / Building
 
-**中文**：如果你想自己构建该应用而不是从[发布页](https://github.com/Aldaviva/AuthenticatorChooser/releases)下载预编译二进制，可以按以下步骤操作。
+**中文**：如果你想自己构建该应用而不是从[发布页](https://github.com/f1owkang/AuthenticatorChooser/releases)下载预编译二进制，可以按以下步骤操作。
 
 1. 安装[最新稳定版 .NET SDK](https://dotnet.microsoft.com/en-us/download)（10 或更高版本）。
 1. 克隆本仓库。
     ```ps1
-    git clone "https://github.com/Aldaviva/AuthenticatorChooser.git"
+    git clone "https://github.com/f1owkang/AuthenticatorChooser.git"
     ```
 1. 进入项目目录。
     ```ps1
     cd .\AuthenticatorChooser\AuthenticatorChooser\
     ```
-1. 选择要构建的[版本标签](https://github.com/Aldaviva/AuthenticatorChooser/tags)，或跳过此步以使用 `master` 分支的最新提交。
+1. 选择要构建的[版本标签](https://github.com/f1owkang/AuthenticatorChooser/tags)，或跳过此步以使用 `master` 分支的最新提交。
     ```sh
     git checkout 0.6.0
     ```
@@ -289,18 +289,18 @@ The program only interacts with FIDO dialogs owned by **Microsoft-signed system 
 
 如果你更喜欢 IDE，也可以使用 [Visual Studio](https://visualstudio.microsoft.com/vs/) Community 2022 或 2026 等集成开发环境。
 
-**English**: If you want to build this application yourself instead of downloading precompiled binaries from the [releases](https://github.com/Aldaviva/AuthenticatorChooser/releases) page, you can follow these steps.
+**English**: If you want to build this application yourself instead of downloading precompiled binaries from the [releases](https://github.com/f1owkang/AuthenticatorChooser/releases) page, you can follow these steps.
 
 1. Install the [latest stable .NET SDK](https://dotnet.microsoft.com/en-us/download) (10 or later).
 1. Clone this repository.
     ```ps1
-    git clone "https://github.com/Aldaviva/AuthenticatorChooser.git"
+    git clone "https://github.com/f1owkang/AuthenticatorChooser.git"
     ```
 1. Go to the project directory.
     ```ps1
     cd .\AuthenticatorChooser\AuthenticatorChooser\
     ```
-1. Choose one of the [version tags](https://github.com/Aldaviva/AuthenticatorChooser/tags) to build, or skip this step to use the head commit on the `master` branch.
+1. Choose one of the [version tags](https://github.com/f1owkang/AuthenticatorChooser/tags) to build, or skip this step to use the head commit on the `master` branch.
     ```sh
     git checkout 0.6.0
     ```

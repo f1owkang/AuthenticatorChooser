@@ -202,7 +202,7 @@ public class Startup {
             {processFilename} --help
                 Shows this usage.
                 
-            For more information, see https://github.com/Aldaviva/{PROGRAM_NAME}.
+            For more information, see https://github.com/f1owkang/{PROGRAM_NAME}.
             Press Ctrl+C to copy this message.
             """, $"{PROGRAM_NAME} {PROGRAM_VERSION} usage", Win32MessageBox.Kind.Information);
     }

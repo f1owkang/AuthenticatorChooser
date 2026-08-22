@@ -35,7 +35,7 @@ public static class AutostartManager {
             scheduledTask.RegistrationInfo.Author      = "Ben Hutchison";
             scheduledTask.RegistrationInfo.Date        = DateTime.Now;
             scheduledTask.RegistrationInfo.Description =
-                $"{Startup.PROGRAM_NAME} is a background program that skips the phone pairing option and chooses the USB security key in Windows FIDO/WebAuthn prompts. \n\nThis scheduled task is necessary to start {Startup.PROGRAM_NAME} for you on login with elevated permissions, which are required to interact with the Windows 11 FIDO prompts beginning in January 2026. \n\nhttps://github.com/Aldaviva/{Startup.PROGRAM_NAME}";
+                $"{Startup.PROGRAM_NAME} is a background program that skips the phone pairing option and chooses the USB security key in Windows FIDO/WebAuthn prompts. \n\nThis scheduled task is necessary to start {Startup.PROGRAM_NAME} for you on login with elevated permissions, which are required to interact with the Windows 11 FIDO prompts beginning in January 2026. \n\nhttps://github.com/f1owkang/{Startup.PROGRAM_NAME}";
             if (isAdmin) {
                 scheduledTask.Principal.RunLevel = TaskRunLevel.Highest; // #44: CredentialUIBroker runs with UIAccess integrity level
             }
