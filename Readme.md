@@ -140,7 +140,7 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 
 ### 系统托盘图标 / System tray icon
 
-**中文**：程序运行期间会出现系统托盘图标（采用 Windows 11 Fluent 风格，支持浅色/深色主题与圆角）。右键点击它，可以：
+**中文**：程序运行期间会在系统托盘中显示一个图标。右键点击它，可以：
 
 - **启用 / 禁用自动选择安全密钥** —— 禁用后，程序完全不触碰任何 FIDO 弹窗，当你需要手动选择其他认证器或密码管理器中保存的 passkey 时很有用。双击图标也可切换此设置。
 - **首选验证方法（Preferred authenticator）** —— 子菜单中列出了本系统当前可用的验证方法（自动从系统获取），包括「默认（自动）」「USB 安全密钥」「配对手机」「使用已有手机」，以及系统中已注册的第三方 passkey 提供商（如 1Password、Bitwarden）。选择后，程序在 FIDO 弹窗出现时会优先选择该方法。与 `--priority-file` 配合使用时可覆盖其优先级。
@@ -148,9 +148,9 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 - **开机自启（Start automatically at logon）** —— 勾选后在 Windows 登录时自动以最高权限启动本程序（创建计划任务）；取消勾选即移除。
 - **退出（Exit）** —— 退出程序，作为在任务管理器中结束进程的替代方式。
 
-**English**: A system tray icon (Windows 11 Fluent style, with rounded corners and light/dark theme support) appears while the program is running. Right-click it to:
+**English**: A system tray icon appears while the program is running. Right-click it to:
 
-- **Enable / disable automatic security key selection** — when disabled, the program leaves all FIDO dialogs completely untouched, which is useful when you want to manually choose another authenticator or a passkey stored in a password manager. Double-clicking the icon also toggles this setting.
+- **Enable / disable automatic security key selection** — when disabled, the program leaves all FIDO dialogs completely untouched, which is useful when you want to manually choose another authenticator or a passkey stored in a password manager.
 - **Preferred authenticator** — this submenu lists the authentication methods currently available on this system (auto-enumerated from the system): "Default (automatic)", "USB security key", "Pair a new phone", "Use an existing phone", plus any third-party passkey providers registered on the system (such as 1Password, Bitwarden). Picking one makes the program prefer that method when a FIDO prompt appears.
 - **Language** — this submenu switches the UI language at runtime with immediate effect, without restarting: "Follow system language", English, 简体中文, 繁體中文.
 - **Start automatically at logon** — checked when the program is registered (as a scheduled task) to start at Windows logon with highest privileges; uncheck to remove it.
@@ -161,13 +161,13 @@ If no rules are configured, the default behavior (prefer the USB security key) i
 **中文**：
 
 - Windows 11 25H2、24H2、23H2，或 [22H2 Moment 4](https://support.microsoft.com/en-us/topic/september-26-2023-kb5030310-os-build-22621-2361-preview-363ac1ae-6ea8-41b3-b3cc-22a2a5682faf)
-- [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) 或更高版本，x64 或 arm64（界面为 WinUI 3 / Windows App SDK 原生）
+- [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) 或更高版本，x64 或 arm64（界面为 WinForms 原生托盘）
 - 通过远程桌面连接（Remote Desktop Connection）使用 Windows 时，本程序必须运行在客户端而非服务器上，因为 FIDO 弹窗会被转发并在 `mstsc` 窗口之外的客户端显示
 
 **English**:
 
 - Windows 11 25H2, 24H2, 23H2, or [22H2 Moment 4](https://support.microsoft.com/en-us/topic/september-26-2023-kb5030310-os-build-22621-2361-preview-363ac1ae-6ea8-41b3-b3cc-22a2a5682faf)
-- [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) or later, either x64 or arm64 (WinUI 3 / Windows App SDK native UI)
+- [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) or later, either x64 or arm64 (native WinForms tray UI)
 - When using Windows over Remote Desktop Connection, this program must run on the client, not the server, because FIDO prompts are forwarded and displayed by the client outside of the `mstsc` window
 
 ## 安装 / Installation

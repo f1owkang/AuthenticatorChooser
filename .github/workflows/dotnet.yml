@@ -30,7 +30,8 @@ jobs:
 
     # framework-dependent single-file publish (tiny ~2 MB, like g-helper): csproj's PublishSingleFile conditional
     # group pins SelfContained=false, so only the app's managed code is bundled and the .NET Desktop Runtime is loaded
-    # from the system. mwinapi's tiny native helper is uploaded alongside since it cannot be embedded.
+    # from the system. mwinapi's native helper is embedded via IncludeNativeLibrariesForSelfExtract, so the publish
+    # is a single EXE.
     - name: Build
       run: dotnet build ${{ env.ProjectName }} --no-restore --runtime ${{ matrix.targetPlatform }} --configuration Release -p:PublishSingleFile=true
 

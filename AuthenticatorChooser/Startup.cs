@@ -19,9 +19,6 @@ public class Startup {
     public static readonly  CancellationToken        EXITING         = EXITING_TRIGGER.Token;
     private static readonly WindowsIdentity          CURRENT_USER    = WindowsIdentity.GetCurrent();
 
-    /// <summary>The resolved options handed to the WinUI app (set by <see cref="Program.launch"/>).</summary>
-    internal static ChooserOptions CURRENT_OPTIONS = null!;
-
     private static Logger? logger;
 
     // #15
@@ -84,7 +81,7 @@ public class Startup {
 
                 SystemEvents.SessionEnding += onWindowsLogoff;
 
-                // Blocks on the WinUI message loop until the app exits
+                // Blocks on the WinForms message loop until the app exits
                 Program.launch(options);
             } finally {
                 singleInstanceLock.ReleaseMutex();

@@ -2,12 +2,11 @@ using System.Runtime.InteropServices;
 
 namespace AuthenticatorChooser;
 
-/// <summary>Shows the native Windows message box (User32), since the WinUI app has no visible window for WinForms-style dialogs.</summary>
+/// <summary>Shows the native Windows message box (User32), since the app has no visible window for WinForms-style dialogs.</summary>
 internal static class Win32MessageBox {
 
     internal enum Kind {
         Information = 0x00000040, // MB_ICONINFORMATION
-        Warning     = 0x00000030, // MB_ICONWARNING
         Error       = 0x00000010, // MB_ICONERROR
     }
 

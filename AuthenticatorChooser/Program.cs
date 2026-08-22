@@ -22,7 +22,6 @@ public static class Program {
 
     /// <summary>Launches the WinForms application on the current (STA) thread, blocking until it exits.</summary>
     public static void launch(ChooserOptions options) {
-        Startup.CURRENT_OPTIONS = options;
         ApplicationConfiguration.Initialize();
         Application.Run(new TrayApplicationContext(options));
     }
