@@ -23,8 +23,11 @@ internal static class GpgBridge {
     /// <summary>Last bind/start error (e.g. port already in use), for the settings-dialog status section.</summary>
     public static string? lastError { get; private set; }
 
-    /// <summary>Connections that send nothing within this window are closed (idle probe / dead tunnel guard).</summary>
+    /// <summary>Connections that accept but whose client never speaks within this window are closed (idle probe / dead
+    /// tunnel guard). It only applies until the client's first data is relayed, so a legitimate handshake or a slow
+    /// card touch / PIN prompt during signing is never killed.</summary>
     private static readonly TimeSpan IDLE_TIMEOUT = TimeSpan.FromSeconds(30);
+    private static readonly long     IDLE_TIMEOUT_MILLIS = (long) IDLE_TIMEOUT.TotalMilliseconds;
 
     /// <summary>Starts listening on 127.0.0.1:<paramref name="port"/>. Idempotent: any existing bridge is stopped first.
     /// A tray-balloon warning is shown when the bridge transitions from stopped to running (enable at runtime, or the
@@ -96,83 +99,114 @@ internal static class GpgBridge {
                 using var agent = new TcpClient();
                 await agent.ConnectAsync(IPAddress.Loopback, endpoint.port, cts.Token);
                 await agent.GetStream().WriteAsync(endpoint.nonce, cts.Token);
-                // Connection audit: read the client's first chunk, log the source and the first Assuan instruction
-                // (SIGN, HAVEKEY, DECRYPT, ...), then forward it — lets the user spot unexpected sign/decrypt requests
-                // after the fact instead of only trusting that nothing hostile reached the agent.
+
+                // Both relay directions start immediately after the nonce, so the agent's assuan greeting
+                // ("OK Pleased to meet you …") flows to the client without waiting for client input. Issue #9: the
+                // audit used to pre-read the client's first chunk first, but libassuan does not send anything until it
+                // has seen the greeting, so the two sides deadlocked and the 30 s idle timer killed the connection.
+                // The audit now runs inside the client→agent copy as data passes, so it never blocks the handshake.
+                var counters = new RelayCounters();
                 string? remote = client.Client.RemoteEndPoint?.ToString();
-                int    firstBytes = await auditFirstChunk(client, agent.GetStream(), cts.Token);
-                if (firstBytes < 0) {
-                    return; // idle connection closed without relaying anything
+                Task watchdog = idleWatchdog(counters, cts, remote);
+                Task a = copy(client, agent, cts.Token, counters, auditFirstChunk: true, remote);
+                Task b = copy(agent, client, cts.Token, counters, auditFirstChunk: false, remote);
+                try {
+                    Task completed = await Task.WhenAny(a, b, watchdog);
+                    if (completed.IsFaulted) {
+                        // One direction faulted (e.g. connection reset on tunnel teardown): cancel the sibling so the
+                        // two open sockets close promptly instead of hanging until the peer closes or the app exits.
+                        cts.Cancel();
+                    }
+                    await Task.WhenAll(a, b); // both directions must EOF/fault for the connection to end
+                } finally {
+                    cts.Cancel();   // stop the idle watchdog before its CTS is disposed
+                    try { await watchdog; } catch { } // it exits on cancellation; never mask the relay outcome
                 }
-                Task<long> a = copy(client, agent, cts.Token);
-                Task<long> b = copy(agent, client, cts.Token);
-                Task completed = await Task.WhenAny(a, b);
-                if (completed.IsFaulted) {
-                    // One direction faulted (e.g. connection reset on tunnel teardown): cancel the sibling so the two
-                    // open sockets close promptly instead of hanging until the peer closes or the app exits.
-                    cts.Cancel();
-                }
-                await Task.WhenAll(a, b); // both directions must EOF/fault for the connection to end
                 LOGGER.Info("gpg-agent bridge connection from {remote} closed ({sent} bytes to agent, {received} bytes to client)",
-                    remote, firstBytes + await a, await b);
+                    remote, counters.sent, counters.received);
             } catch (Exception e) when (e is not OutOfMemoryException) {
                 LOGGER.Warn("gpg-agent bridge relay failed: {message}", e.Message);
             }
         }
     }
 
-    /// <summary>Reads the client's first chunk, logs an audit line (source, first Assuan instruction, chunk size), and
-    /// forwards that chunk to the agent so the relay loses nothing. A connection that accepts but sends nothing within
-    /// <see cref="IDLE_TIMEOUT"/> is a probe or a dead tunnel: it is closed (returns -1) instead of pinning a relay
-    /// task forever, so the accept loop cannot be exhausted by idle connections.</summary>
-    private static async Task<int> auditFirstChunk(TcpClient client, NetworkStream agentStream, CancellationToken ct) {
-        using var idleCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        idleCts.CancelAfter(IDLE_TIMEOUT);
-        var buffer = new byte[512];
-        int n;
-        try {
-            n = await client.GetStream().ReadAsync(buffer.AsMemory(0, buffer.Length), idleCts.Token);
-        } catch (OperationCanceledException) when (!ct.IsCancellationRequested) {
-            LOGGER.Warn("gpg-agent bridge closed connection from {remote} after {seconds} s idle with no data",
-                client.Client.RemoteEndPoint, (int) IDLE_TIMEOUT.TotalSeconds);
-            return -1; // abort the relay
-        }
-        if (n == 0) {
-            return 0;
-        }
-        // The agent protocol (Assuan) is line-based; the first whitespace-delimited token is the instruction.
-        int tokenLength = 0;
-        while (tokenLength < n && tokenLength < 32) {
-            byte b = buffer[tokenLength];
-            if (b is (byte) ' ' or (byte) '\t' or (byte) '\r' or (byte) '\n') {
-                break;
-            }
-            tokenLength++;
-        }
-        string instruction = tokenLength > 0 ? Encoding.UTF8.GetString(buffer, 0, tokenLength) : "?";
-        LOGGER.Info("gpg-agent bridge accepted connection from {remote}: first instruction {instruction}, first chunk {bytes} bytes",
-            client.Client.RemoteEndPoint, instruction, n);
-        await agentStream.WriteAsync(buffer.AsMemory(0, n), ct);
-        return n;
-    }
-
-    private static async Task<long> copy(TcpClient from, TcpClient to, CancellationToken ct) {
+    /// <summary>Relays bytes from <paramref name="from"/> to <paramref name="to"/> until EOF, counting bytes and
+    /// updating the activity timestamp for the idle watchdog. When <paramref name="auditFirstChunk"/> is set (the
+    /// client→agent direction), the first chunk's leading Assuan instruction is logged as it passes, so the audit
+    /// never blocks the handshake (issue #9).</summary>
+    private static async Task copy(TcpClient from, TcpClient to, CancellationToken ct, RelayCounters counters, bool auditFirstChunk, string? remote) {
         var buffer = new byte[4096];
-        long total = 0;
+        bool audited = false;
         try {
             while (true) {
                 int read = await from.GetStream().ReadAsync(buffer, ct);
                 if (read == 0) {
                     // #7: half-close the send side so the peer sees EOF while the reverse relay stays open.
                     try { to.Client.Shutdown(SocketShutdown.Send); } catch { }
-                    return total;
+                    return;
+                }
+                Volatile.Write(ref counters.lastActivityTicks, Environment.TickCount64);
+                if (auditFirstChunk && !audited) {
+                    audited = true;
+                    Volatile.Write(ref counters.established, true); // the client spoke → live session, end probe protection
+                    LOGGER.Info("gpg-agent bridge accepted connection from {remote}: first instruction {instruction}, first chunk {bytes} bytes",
+                        remote, extractInstruction(buffer, read), read);
                 }
                 await to.GetStream().WriteAsync(buffer.AsMemory(0, read), ct);
-                total += read;
+                if (auditFirstChunk) {
+                    counters.sent += read;
+                } else {
+                    counters.received += read;
+                }
             }
         } catch (OperationCanceledException) {
-            return total;
         }
+    }
+
+    /// <summary>Extracts the leading whitespace-delimited token (the Assuan instruction, e.g. SIGN or HAVEKEY) from a
+    /// chunk, capped at 32 bytes.</summary>
+    private static string extractInstruction(byte[] chunk, int length) {
+        int tokenLength = 0;
+        while (tokenLength < length && tokenLength < 32) {
+            byte b = chunk[tokenLength];
+            if (b is (byte) ' ' or (byte) '\t' or (byte) '\r' or (byte) '\n') {
+                break;
+            }
+            tokenLength++;
+        }
+        return tokenLength > 0 ? Encoding.UTF8.GetString(chunk, 0, tokenLength) : "?";
+    }
+
+    /// <summary>Closes a connection that accepted but whose client never sent anything within <see cref="IDLE_TIMEOUT"/>
+    /// — a probe or a dead tunnel cannot pin a relay task forever. Once the client's first data has been relayed
+    /// (<see cref="RelayCounters.established"/>), the watchdog stops: the connection is a live agent session, and a
+    /// slow card touch or PIN prompt during signing must not be interrupted.</summary>
+    private static async Task idleWatchdog(RelayCounters counters, CancellationTokenSource cts, string? remote) {
+        try {
+            while (!cts.IsCancellationRequested) {
+                await Task.Delay(1000, cts.Token);
+                if (Volatile.Read(ref counters.established)) {
+                    return; // live session; the agent/peer will close it when the operation finishes
+                }
+                if (Environment.TickCount64 - Volatile.Read(ref counters.lastActivityTicks) >= IDLE_TIMEOUT_MILLIS) {
+                    LOGGER.Warn("gpg-agent bridge closed connection from {remote} after {seconds} s idle before the client sent anything",
+                        remote, (int) IDLE_TIMEOUT.TotalSeconds);
+                    cts.Cancel();
+                    return;
+                }
+            }
+        } catch (OperationCanceledException) {
+            // connection closed normally; the watchdog exits
+        }
+    }
+
+    /// <summary>Per-connection byte counters and the last-activity timestamp shared by the relay copies and the idle
+    /// watchdog.</summary>
+    private sealed class RelayCounters {
+        public long sent;                 // bytes relayed client → agent
+        public long received;             // bytes relayed agent → client
+        public bool established;          // set once the client's first data is relayed (ends probe protection)
+        public long lastActivityTicks = Environment.TickCount64; // written/read via Volatile
     }
 
     private static (int port, byte[] nonce)? getSocketEndpoint() {

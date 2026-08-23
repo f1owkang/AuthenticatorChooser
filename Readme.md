@@ -255,7 +255,7 @@ The program only interacts with FIDO dialogs owned by **Microsoft-signed system 
     ```
 1. 选择要构建的[版本标签](https://github.com/f1owkang/PasskeyPick/tags)，或跳过以使用 `master` 最新提交。
     ```sh
-    git checkout 0.7.0
+    git checkout 0.7.1
     ```
 1. 构建并发布（`PublishSingleFile=true` 生成单文件、`SelfContained=false` 框架依赖，约 2 MB，目标机需 [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)）。
     ```ps1
@@ -280,7 +280,7 @@ The program only interacts with FIDO dialogs owned by **Microsoft-signed system 
     ```
 1. Choose one of the [version tags](https://github.com/f1owkang/PasskeyPick/tags), or skip this step to use the head commit on `master`.
     ```sh
-    git checkout 0.7.0
+    git checkout 0.7.1
     ```
 1. Build and publish (`PublishSingleFile=true` produces a single-file executable; `SelfContained=false` makes it framework-dependent at ~2 MB, but the target machine needs the [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)).
     ```ps1
