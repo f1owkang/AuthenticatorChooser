@@ -31,6 +31,9 @@ internal static class Settings {
     public static bool pinClearOnSleep { get; set; }
     public static bool pinClearOnHibernate { get; set; }
 
+    /// <summary>UTC time of the last update check, so the GitHub API is hit at most once a day.</summary>
+    public static DateTime? lastUpdateCheckUtc { get; set; }
+
     /// <summary>Serializable snapshot of <see cref="Settings"/>, so a static class can be persisted.</summary>
     private sealed class Dto {
         public string? uiLanguage { get; init; }
@@ -41,6 +44,7 @@ internal static class Settings {
         public bool pinClearOnLock { get; init; }
         public bool pinClearOnSleep { get; init; }
         public bool pinClearOnHibernate { get; init; }
+        public DateTime? lastUpdateCheckUtc { get; init; }
     }
 
     public static void load() {
@@ -54,6 +58,7 @@ internal static class Settings {
                 pinClearOnLock        = dto.pinClearOnLock;
                 pinClearOnSleep       = dto.pinClearOnSleep;
                 pinClearOnHibernate   = dto.pinClearOnHibernate;
+                lastUpdateCheckUtc    = dto.lastUpdateCheckUtc;
             }
         } catch (Exception) {
             // A corrupt settings file must not crash the program; fall back to defaults.
@@ -71,7 +76,8 @@ internal static class Settings {
                 pinCacheTtlSeconds    = pinCacheTtlSeconds,
                 pinClearOnLock        = pinClearOnLock,
                 pinClearOnSleep       = pinClearOnSleep,
-                pinClearOnHibernate   = pinClearOnHibernate
+                pinClearOnHibernate   = pinClearOnHibernate,
+                lastUpdateCheckUtc    = lastUpdateCheckUtc
             }));
         } catch (Exception) {
             // Failing to save settings must not crash the program.

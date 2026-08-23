@@ -18,6 +18,19 @@ public class WindowsChooser(ChooserOptions options): AbstractChooser<SystemWindo
 
     private PromptStrategy? strategy;
 
+    // #29: float the FIDO prompt above other windows (topmost). Cross-process focus stealing is unreliable on Windows,
+    // but always-on-top reliably solves the "prompt is hidden behind my browser" case.
+    private static readonly IntPtr HWND_TOPMOST = new(-1);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
+
+    private static void bringToFront(IntPtr hwnd) {
+        const uint SWP_NOSIZE = 0x0001, SWP_NOMOVE = 0x0002, SWP_SHOWWINDOW = 0x0040;
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+    }
+
     public override void chooseUsbSecurityKey(SystemWindow fidoPrompt) {
         options.overallStopwatch.Restart();
         try {
@@ -72,6 +85,8 @@ public class WindowsChooser(ChooserOptions options): AbstractChooser<SystemWindo
                 return;
             } else {
                 LOGGER.Trace("Window 0x{hwnd:x} is a Windows Security window", fidoPrompt.HWnd);
+                // #29: the prompt is often hidden behind other windows; float it on top so the user notices it.
+                bringToFront(fidoPrompt.HWnd);
             }
 
             bool isShiftDown = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);

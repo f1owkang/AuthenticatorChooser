@@ -255,4 +255,22 @@
   <data name="pinDialogTtlRemaining" xml:space="preserve">
     <value>The cached PIN expires in {0}.</value>
   </data>
+  <data name="trayCheckForUpdates" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="updateAvailableTitle" xml:space="preserve">
+    <value>Update available</value>
+  </data>
+  <data name="updateAvailableBody" xml:space="preserve">
+    <value>PasskeyPick {0} is now available. Download it from:&#10;{1}</value>
+  </data>
+  <data name="updateUpToDateTitle" xml:space="preserve">
+    <value>No update available</value>
+  </data>
+  <data name="updateUpToDateBody" xml:space="preserve">
+    <value>You're running the latest version of PasskeyPick.</value>
+  </data>
+  <data name="rdpSessionReminder" xml:space="preserve">
+    <value>This looks like a remote desktop session. The Windows FIDO prompt is displayed on the RDP client, so install PasskeyPick on the client (this machine) for it to auto-select the security key.</value>
+  </data>
 </root>

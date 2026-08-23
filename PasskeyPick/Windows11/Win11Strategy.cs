@@ -1,5 +1,4 @@
 using System.Windows.Automation;
-using System.Windows.Forms;
 using Unfucked;
 
 namespace PasskeyPick.Windows11;
@@ -100,9 +99,11 @@ public abstract class Win11Strategy(ChooserOptions options): PromptStrategy {
             ((ValuePattern) pinField.GetCurrentPattern(ValuePattern.Pattern)).SetValue(pin);
             LOGGER.Info("Auto-filled cached security key PIN {0:N3} sec after dialog appeared", options.overallStopwatch.Elapsed.TotalSeconds);
         } catch (Exception e) when (e is not OutOfMemoryException) {
-            // Some password-field providers reject UIA SetValue; fall back to keyboard injection into the focused field.
-            LOGGER.Warn("UIA SetValue for the PIN field failed ({message}), injecting via keyboard instead", e.Message);
-            SendKeys.SendWait(pin);
+            // SendKeys is a global keyboard-injection primitive that does not verify which window has focus, so it is
+            // never a safe fallback: the PIN could be typed into whatever window happens to be focused (e.g. a browser
+            // or chat box). Ask the user to type the PIN manually instead.
+            LOGGER.Warn("UIA SetValue for the PIN field failed ({message}), skipping auto-fill; please type the PIN manually", e.Message);
+            return false;
         }
 
         if (fidoEl.FindFirst(TreeScope.Children, NEXT_BUTTON_CONDITION) is { } okButton) {

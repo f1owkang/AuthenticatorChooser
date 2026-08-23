@@ -16,6 +16,7 @@ public sealed class TrayApplicationContext : ApplicationContext {
     public TrayApplicationContext(ChooserOptions options) {
         var trayMenu = new SystemTrayMenu(options);
         trayMenu.ExitRequested += exit;
+        trayMenu.CheckForUpdatesRequested += onCheckForUpdatesRequested;
 
         trayIcon = new NotifyIcon {
             Icon             = loadIcon(),
@@ -26,6 +27,7 @@ public sealed class TrayApplicationContext : ApplicationContext {
         trayIcon.MouseDoubleClick += onTrayIconDoubleClick;
 
         startBackgroundFidoListener(options);
+        startUpdateChecker();
     }
 
     /// <summary>Opens the PIN cache/clear dialog when the tray icon is double-clicked.</summary>
@@ -35,6 +37,43 @@ public sealed class TrayApplicationContext : ApplicationContext {
         }
         using var dialog = new PinSetupDialog();
         dialog.ShowDialog();
+    }
+
+    /// <summary>Periodically checks GitHub for a newer release (at most once a day) without blocking the tray.</summary>
+    private void startUpdateChecker() {
+        _ = Task.Run(async () => {
+            while (!Startup.EXITING.IsCancellationRequested) {
+                if (UpdateChecker.isCheckStale()) {
+                    await checkAndNotifyAsync();
+                }
+                try {
+                    await Task.Delay(TimeSpan.FromHours(1), Startup.EXITING);
+                } catch (OperationCanceledException) {
+                    break;
+                }
+            }
+        });
+    }
+
+    /// <summary>Manual "Check for updates…" from the tray menu: always checks and always reports the outcome.</summary>
+    private void onCheckForUpdatesRequested() {
+        _ = Task.Run(() => checkAndNotifyAsync(force: true));
+    }
+
+    private async Task checkAndNotifyAsync(bool force = false) {
+        if (!force) {
+            UpdateChecker.markChecked();
+        }
+        string? newerTag = await UpdateChecker.getNewerReleaseTagAsync();
+        if (Startup.EXITING.IsCancellationRequested) {
+            return;
+        }
+        if (newerTag is not null) {
+            trayIcon.ShowBalloonTip(10_000, UiLanguage.get("updateAvailableTitle"),
+                string.Format(UiLanguage.get("updateAvailableBody"), newerTag, UpdateChecker.LATEST_RELEASE_URL), ToolTipIcon.Info);
+        } else if (force) {
+            trayIcon.ShowBalloonTip(5_000, UiLanguage.get("updateUpToDateTitle"), UiLanguage.get("updateUpToDateBody"), ToolTipIcon.Info);
+        }
     }
 
     private static Icon? loadIcon() {

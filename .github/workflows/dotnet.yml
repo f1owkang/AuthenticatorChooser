@@ -2,7 +2,6 @@ name: .NET
 
 on:
   push:
-    branches: [ master ]
     tags: [ '*' ]
   workflow_dispatch:
 
@@ -40,19 +39,19 @@ jobs:
     - name: Publish
       run: dotnet publish ${{ env.ProjectName }} --no-build --runtime ${{ matrix.targetPlatform }} --configuration Release -p:PublishSingleFile=true
 
-    # Per-architecture ZIP so the win-x64 and win-arm64 assets never collide on a release, matching the README's
-    # "download the release ZIP archive" wording.
-    - name: Package release asset
+    # Per-architecture EXE so the win-x64 and win-arm64 assets never collide on a release; no ZIP wrapper, users
+    # download the EXE directly.
+    - name: Prepare release asset
       shell: pwsh
       run: |
         $exe = "${{ env.ProjectName }}/bin/Release/net10.0-windows10.0.19041.0/${{ matrix.targetPlatform }}/publish/${{ env.ProjectName }}.exe"
-        Compress-Archive -Path $exe -DestinationPath "${{ env.ProjectName }}-${{ matrix.targetPlatform }}.zip" -Force
+        Copy-Item $exe "${{ env.ProjectName }}-${{ matrix.targetPlatform }}.exe" -Force
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v7
       with:
         name: ${{ env.ProjectName }}-${{ matrix.targetPlatform }}
-        path: ${{ env.ProjectName }}-${{ matrix.targetPlatform }}.zip
+        path: ${{ env.ProjectName }}-${{ matrix.targetPlatform }}.exe
         if-no-files-found: error
 
   release:
@@ -70,5 +69,5 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: assets/*/*.zip
+          files: assets/*/*.exe
           generate_release_notes: true

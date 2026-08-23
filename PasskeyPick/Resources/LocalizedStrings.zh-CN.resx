@@ -255,4 +255,22 @@
   <data name="pinDialogTtlRemaining" xml:space="preserve">
     <value>缓存的 PIN 将于 {0} 后过期。</value>
   </data>
+  <data name="trayCheckForUpdates" xml:space="preserve">
+    <value>检查更新</value>
+  </data>
+  <data name="updateAvailableTitle" xml:space="preserve">
+    <value>发现新版本</value>
+  </data>
+  <data name="updateAvailableBody" xml:space="preserve">
+    <value>发现新版本 PasskeyPick {0}，请从以下地址下载：&#10;{1}</value>
+  </data>
+  <data name="updateUpToDateTitle" xml:space="preserve">
+    <value>已是最新版本</value>
+  </data>
+  <data name="updateUpToDateBody" xml:space="preserve">
+    <value>你正在运行最新版本的 PasskeyPick。</value>
+  </data>
+  <data name="rdpSessionReminder" xml:space="preserve">
+    <value>当前似乎是远程桌面会话。Windows FIDO 弹窗显示在 RDP 客户端上，因此需要在本机（客户端）安装 PasskeyPick 才能自动选择安全密钥。</value>
+  </data>
 </root>

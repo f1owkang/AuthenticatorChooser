@@ -4,6 +4,7 @@ using McMaster.Extensions.CommandLineUtils.Conventions;
 using Microsoft.Win32;
 using System.Reflection;
 using System.Security.Principal;
+using System.Windows.Forms;
 
 // ReSharper disable ClassNeverInstantiated.Global - it's actually instantiated by McMaster.Extensions.CommandLineUtils
 // ReSharper disable UnassignedGetOnlyAutoProperty - it's actually assigned by McMaster.Extensions.CommandLineUtils
@@ -108,6 +109,9 @@ public class Startup {
 
                 UiLanguage.apply(Settings.uiLanguage);
 
+                // #47: in an RDP session the FIDO prompt is drawn on the client, so this program must run on the client.
+                warnIfRemoteSession();
+
                 ChooserOptions options = new(skipAllNonSecurityKeyOptions, Settings.autoSubmitPinLength, resolvePriorityFile(priorityFile));
                 options.isEnabled = Settings.autoSelectEnabled;
                 options.preferredAuthenticator = Settings.preferredAuthenticator;
@@ -151,6 +155,14 @@ public class Startup {
         }
         Win32MessageBox.show($"Failed to register {PROGRAM_NAME} to start automatically on Windows logon.", PROGRAM_NAME, Win32MessageBox.Kind.Error);
         return false;
+    }
+
+    // #47: in an RDP session the FIDO prompt is drawn on the client, so this program must run on the client.
+    private static void warnIfRemoteSession() {
+        if (SystemInformation.TerminalServerSession) {
+            logger?.Info("Remote desktop session detected; the Windows FIDO prompt is shown on the RDP client, so PasskeyPick must be installed on the client");
+            Win32MessageBox.show(UiLanguage.get("rdpSessionReminder"), PROGRAM_NAME, Win32MessageBox.Kind.Warning);
+        }
     }
 
     private static string? resolvePriorityFile(string? configuredPath) {

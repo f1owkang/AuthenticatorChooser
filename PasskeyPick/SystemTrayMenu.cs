@@ -31,6 +31,7 @@ public sealed class SystemTrayMenu {
 
     public ContextMenuStrip MenuStrip { get; }
     public event Action? ExitRequested;
+    public event Action? CheckForUpdatesRequested;
 
     public SystemTrayMenu(ChooserOptions options) {
         this.options = options;
@@ -58,12 +59,8 @@ public sealed class SystemTrayMenu {
 
         MenuStrip.Items.Add(new ToolStripSeparator());
 
-        // Appearance
+        // Appearance and system integration: language, autostart, and update checks are grouped together.
         MenuStrip.Items.Add(buildLanguageSubmenu());
-
-        MenuStrip.Items.Add(new ToolStripSeparator());
-
-        // System integration
         MenuStrip.Items.Add(buildToggle(UiLanguage.get("trayAutostartOnLogon"), "trayAutostartOnLogon",
             AutostartManager.isEnabled,
             () => {
@@ -73,6 +70,13 @@ public sealed class SystemTrayMenu {
                     Win32MessageBox.show(UiLanguage.get("autostartRegisterFailed"), "PasskeyPick", Win32MessageBox.Kind.Error);
                 }
             }));
+
+        var checkForUpdatesItem = new ToolStripMenuItem(UiLanguage.get("trayCheckForUpdates"));
+        register(text => checkForUpdatesItem.Text = text, "trayCheckForUpdates");
+        checkForUpdatesItem.Click += (_, _) => CheckForUpdatesRequested?.Invoke();
+        MenuStrip.Items.Add(checkForUpdatesItem);
+
+        MenuStrip.Items.Add(new ToolStripSeparator());
 
         // High-frequency action at the top level: cache or clear the PIN (memory-only, encrypted).
         MenuStrip.Items.Add(buildToggle(UiLanguage.get("trayPinCache"), "trayPinCache",

@@ -202,8 +202,8 @@ The following preferences are persisted to `%APPDATA%\PasskeyPick\settings.json`
 
 **中文**：
 
-1. [下载与你 CPU 架构对应的最新发布版 ZIP 压缩包。](https://github.com/f1owkang/PasskeyPick/releases/latest)
-1. 将压缩包中的 `PasskeyPick.exe` 解压到你选择的目录，例如 `C:\Program Files\PasskeyPick\`。
+1. [下载与你 CPU 架构对应的最新发布版 `PasskeyPick-win-x64.exe` 或 `PasskeyPick-win-arm64.exe`。](https://github.com/f1owkang/PasskeyPick/releases/latest)
+1. 将下载的 exe 重命名为 `PasskeyPick.exe` 并放到你选择的目录，例如 `C:\Program Files\PasskeyPick\`。
     - 发布版为框架依赖的单文件（约 2 MB），首次运行前需安装 [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)。
 1. 双击 `PasskeyPick.exe` 运行程序。
     - 程序没有主窗口，运行后驻留在系统托盘中（右键托盘图标可打开设置菜单），但你可以通过任务管理器中搜索 `PasskeyPick` 来确认它在运行。
@@ -212,8 +212,8 @@ The following preferences are persisted to `%APPDATA%\PasskeyPick\settings.json`
 
 **English**:
 
-1. [Download the latest release ZIP archive for your CPU architecture.](https://github.com/f1owkang/PasskeyPick/releases/latest)
-1. Extract the `PasskeyPick.exe` file from the ZIP archive to a directory of your choice, like `C:\Program Files\PasskeyPick\`.
+1. [Download `PasskeyPick-win-x64.exe` or `PasskeyPick-win-arm64.exe` for your CPU architecture.](https://github.com/f1owkang/PasskeyPick/releases/latest)
+1. Rename the downloaded EXE to `PasskeyPick.exe` and save it to a directory of your choice, like `C:\Program Files\PasskeyPick\`.
     - The release is a framework-dependent single file (~2 MB); install the [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) before the first run.
 1. Run the program by double-clicking `PasskeyPick.exe`.
     - No main window will appear — the program runs in the system tray (right-click its icon for the settings menu) — but you can tell it's running by searching for `PasskeyPick` in Task Manager.
