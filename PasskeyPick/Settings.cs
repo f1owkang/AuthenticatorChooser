@@ -72,7 +72,8 @@ internal static class Settings {
                 pinClearOnHibernate   = dto.pinClearOnHibernate;
                 gpgBridgeEnabled         = dto.gpgBridgeEnabled;
                 gpgAgentAutostartEnabled = dto.gpgAgentAutostartEnabled;
-                gpgBridgePort            = dto.gpgBridgePort;
+                // #10: clamp the port read from disk, so a tampered settings.json cannot inject an out-of-range value.
+                gpgBridgePort            = Math.Clamp(dto.gpgBridgePort, 1, 65535);
                 lastUpdateCheckUtc    = dto.lastUpdateCheckUtc;
             }
         } catch (Exception) {

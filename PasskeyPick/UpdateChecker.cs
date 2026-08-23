@@ -11,7 +11,7 @@ internal static class UpdateChecker {
 
     private static readonly Logger LOGGER = LogManager.GetLogger(typeof(UpdateChecker).FullName!);
 
-    private static readonly HttpClient http = new();
+    private static readonly HttpClient http = new() { Timeout = TimeSpan.FromSeconds(15) };
 
     internal static readonly string LATEST_RELEASE_URL = $"https://github.com/{REPO}/releases/latest";
 

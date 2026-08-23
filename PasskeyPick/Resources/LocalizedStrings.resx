@@ -360,6 +360,12 @@
   <data name="gpgSettingsBridgeWarning" xml:space="preserve">
     <value>Once "GPG-agent forwarding" is enabled, any process on this machine (including other accounts) can sign through your gpg-agent as you — equivalent to ssh -A; do not enable on shared computers.</value>
   </data>
+  <data name="deploymentDirInsecureTitle" xml:space="preserve">
+    <value>Program directory is writable</value>
+  </data>
+  <data name="deploymentDirInsecureBody" xml:space="preserve">
+    <value>Program directory {0} grants write access to unprivileged users — they could plant a malicious DLL or overwrite priority.txt. Move the executable to a protected directory such as C:\Program Files\PasskeyPick.</value>
+  </data>
   <data name="gpgSettingsParams" xml:space="preserve">
     <value>Forwarding parameters</value>
   </data>

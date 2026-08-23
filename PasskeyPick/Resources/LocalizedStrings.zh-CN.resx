@@ -360,6 +360,12 @@
   <data name="gpgSettingsBridgeWarning" xml:space="preserve">
     <value>启用「GPG-agent 转发」后，本机任何进程（含其他账户）都能以你的身份对 gpg-agent 发起签名，等价于 ssh -A；不要在共享电脑上启用。</value>
   </data>
+  <data name="deploymentDirInsecureTitle" xml:space="preserve">
+    <value>程序目录可被低权限用户写入</value>
+  </data>
+  <data name="deploymentDirInsecureBody" xml:space="preserve">
+    <value>程序目录 {0} 允许低权限用户写入——他人可植入恶意 DLL 或篡改 priority.txt。请把程序移到受保护目录（如 C:\Program Files\PasskeyPick）。</value>
+  </data>
   <data name="gpgSettingsParams" xml:space="preserve">
     <value>转发参数</value>
   </data>

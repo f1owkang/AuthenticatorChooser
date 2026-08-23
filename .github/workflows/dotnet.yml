@@ -23,7 +23,7 @@ jobs:
       run: git config set --global core.autocrlf false
 
     - name: Clone
-      uses: actions/checkout@v6
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         
     # The csproj declares RuntimeIdentifiers win-x64;win-arm64, so one locked-mode restore covers both RIDs.
     - name: Restore
@@ -48,7 +48,7 @@ jobs:
         Copy-Item $exe "${{ env.ProjectName }}-${{ matrix.targetPlatform }}.exe" -Force
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
       with:
         name: ${{ env.ProjectName }}-${{ matrix.targetPlatform }}
         path: ${{ env.ProjectName }}-${{ matrix.targetPlatform }}.exe
@@ -62,12 +62,12 @@ jobs:
       contents: write
     steps:
       - name: Download release assets
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           path: assets
 
       - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           files: assets/*/*.exe
           generate_release_notes: true

@@ -1,5 +1,6 @@
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Windows.Forms;
 
 namespace PasskeyPick;
 
@@ -33,9 +34,10 @@ internal static class Security {
         FileSystemRights.ChangePermissions | FileSystemRights.TakeOwnership;
 
     /// <summary>
-    /// Logs a warning if the executable's directory grants write access to unprivileged principals, which would let a
+    /// Warns if the executable's directory grants write access to unprivileged principals, which would let a
     /// lower-privileged user plant a malicious DLL or overwrite priority.txt. Does not block startup: a false positive
-    /// (or a deliberate deployment choice) must not prevent the program from working.
+    /// (or a deliberate deployment choice) must not prevent the program from working. Because the app is a WinExe with
+    /// no console, the warning is surfaced as a tray balloon (and logged), not just written to the log file.
     /// </summary>
     public static void warnIfDeploymentDirectoryIsInsecure() {
         try {
@@ -43,6 +45,7 @@ internal static class Security {
             DirectorySecurity acl = new DirectoryInfo(path).GetAccessControl(AccessControlSections.Access);
             if (isWritableByUnsafePrincipal(acl)) {
                 LOGGER.Error("The program directory {dir} grants write access to unprivileged users, allowing a lower-privileged user to plant a malicious DLL (DLL search-order hijacking) or overwrite priority.txt. Move the executable to a protected directory such as C:\\Program Files\\PasskeyPick.", path);
+                TrayNotifications.show("deploymentDirInsecureTitle", "deploymentDirInsecureBody", ToolTipIcon.Warning, path);
             }
         } catch (Exception e) {
             LOGGER.Warn("Could not check the program directory ACL ({message})", e.Message);

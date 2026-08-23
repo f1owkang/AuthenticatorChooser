@@ -159,7 +159,7 @@ The following preferences are persisted to `%APPDATA%\PasskeyPick\settings.json`
 RemoteForward <远程 socket> 127.0.0.1:<端口>
 ```
 
-配置后，远程主机的提交就会用本地 YubiKey 托管的 gpg-agent 签名，并在 GitHub 显示 **Verified** 徽标。**GPG-agent 守护** 会在登录时启动 Gpg4win 的 gpg-agent，并每 30 秒检查一次，socket 不可达时自动重启。
+配置后，远程主机的提交就会用本地 YubiKey 托管的 gpg-agent 签名，并在 GitHub 显示 **Verified** 徽标。**GPG-agent 守护** 会在登录时启动 Gpg4win 的 gpg-agent，并每 30 秒检查一次，socket 不可达时自动重启。PasskeyPick 以管理员权限运行时，守护会以**中完整性**（medium integrity，通过受限计划任务）启动 gpg-agent，这样普通（非管理员）终端也能连接 `\\.\pipe\openssh-ssh-agent` 进行 SSH 卡认证；相应代价是同用户的中完整性进程也能访问该代理——这是该功能的固有取舍。
 
 > **安全说明（重要）**：桥只监听回环地址（loopback）且默认关闭。但一旦启用，本机**任何进程**（包括其他 Windows 用户账户下运行的程序）都能通过它访问你的 gpg-agent 并代你签名/解密——**签名并不总是要求 PIN 确认**（gpg-agent 会缓存口令、智能卡可能只要求 touch、SSH 签名通常不弹 PIN）。这与 SSH agent 转发（`ssh -A`）的风险同类且暴露面更大。仅在可信的、单用户的机器上启用。
 
@@ -179,7 +179,7 @@ RemoteForward <远程 socket> 127.0.0.1:<端口>
 RemoteForward <remote socket> 127.0.0.1:<port>
 ```
 
-Once configured, commits on the remote machine are signed by your local YubiKey-backed gpg-agent and show a **Verified** badge on GitHub. **GPG-agent daemon** starts the Gpg4win agent at logon and checks it every 30 seconds, restarting it if its socket becomes unreachable.
+Once configured, commits on the remote machine are signed by your local YubiKey-backed gpg-agent and show a **Verified** badge on GitHub. **GPG-agent daemon** starts the Gpg4win agent at logon and checks it every 30 seconds, restarting it if its socket becomes unreachable. When PasskeyPick runs elevated, the daemon starts gpg-agent at **medium integrity** (via a limited scheduled task) so normal (non-elevated) terminals can reach `\\.\pipe\openssh-ssh-agent` for SSH card auth; the trade-off is that same-user medium-integrity processes can also reach the agent — inherent to this feature.
 
 > **Security note (important)**: the bridge listens on loopback only and is off by default. But once enabled, **any local process** (including programs running under other Windows user accounts) can reach your gpg-agent through it and sign or decrypt on your behalf — and **signing does not always require a PIN prompt** (gpg-agent caches passphrases, smartcards may be touch-only, and SSH-agent signing usually does not prompt). This is the same class of risk as SSH agent forwarding (`ssh -A`) but with a wider exposure. Only enable it on a trusted, single-user machine.
 
@@ -255,7 +255,7 @@ The program only interacts with FIDO dialogs owned by **Microsoft-signed system 
     ```
 1. 选择要构建的[版本标签](https://github.com/f1owkang/PasskeyPick/tags)，或跳过以使用 `master` 最新提交。
     ```sh
-    git checkout 0.7.1
+    git checkout 0.7.2
     ```
 1. 构建并发布（`PublishSingleFile=true` 生成单文件、`SelfContained=false` 框架依赖，约 2 MB，目标机需 [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)）。
     ```ps1
@@ -280,7 +280,7 @@ The program only interacts with FIDO dialogs owned by **Microsoft-signed system 
     ```
 1. Choose one of the [version tags](https://github.com/f1owkang/PasskeyPick/tags), or skip this step to use the head commit on `master`.
     ```sh
-    git checkout 0.7.1
+    git checkout 0.7.2
     ```
 1. Build and publish (`PublishSingleFile=true` produces a single-file executable; `SelfContained=false` makes it framework-dependent at ~2 MB, but the target machine needs the [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)).
     ```ps1

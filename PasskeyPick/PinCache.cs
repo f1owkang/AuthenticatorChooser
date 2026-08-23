@@ -6,9 +6,10 @@ namespace PasskeyPick;
 /// <summary>
 /// Holds the USB security key's FIDO2 PIN in memory only — never written to disk — with a configurable TTL, modeled on
 /// gpg-agent's passphrase cache (<c>default-cache-ttl</c>). The cached bytes are encrypted in place with
-/// <c>CryptProtectMemory</c> (a per-process DPAPI session key), so the plaintext PIN does not sit in memory; it is only
-/// decrypted into a temporary buffer on demand and zeroed immediately afterwards. The PIN must be re-entered after
-/// every program restart.
+/// <c>CryptProtectMemory</c> (a per-process DPAPI session key), so the PIN is never stored in plaintext; on use the
+/// bytes are decrypted into a temporary buffer (zeroed immediately) and then materialized into a managed string for the
+/// UIA <c>ValuePattern</c> call — a managed string cannot be zeroed, so a brief plaintext copy necessarily exists on
+/// the GC heap for the duration of that call. The PIN must be re-entered after every program restart.
 /// </summary>
 internal static class PinCache {
 
@@ -157,7 +158,8 @@ internal static class PinCache {
         }
     }
 
-    /// <summary>Decrypts a copy of the cached bytes to a temporary buffer, then zeroes it before returning the string.</summary>
+    /// <summary>Decrypts a copy of the cached bytes to a temporary buffer and zeroes it. The plaintext is then
+    /// unavoidable as a managed string for the UIA <c>ValuePattern</c> call; only the byte buffer can be zeroed.</summary>
     private static string? decrypt(byte[] encrypted) {
         var    buffer = (byte[]) encrypted.Clone();
         GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);

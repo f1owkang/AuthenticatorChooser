@@ -1,6 +1,9 @@
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Security.Principal;
 using System.Text;
+using System.Threading;
+using Microsoft.Win32.TaskScheduler;
 
 namespace PasskeyPick;
 
@@ -55,13 +58,29 @@ internal static class GpgTools {
     }
 
     /// <summary>Starts the gpg-agent via `gpg-connect-agent /bye` (Gpg4win absolute path only). Returns whether the
-    /// command succeeded.</summary>
+    /// command succeeded. When this process is elevated, the agent is started at medium integrity (issue #10) so its
+    /// openssh-ssh-agent named pipe stays reachable from normal, non-elevated terminals.</summary>
     public static bool startAgent() {
         string? fileName = resolveGpg4winConnectAgent();
         if (fileName is null) {
             LOGGER.Warn("gpg-connect-agent not found under {dirs}; cannot start gpg-agent", string.Join(", ", KNOWN_BIN_DIRS));
             return false;
         }
+        // #10: an elevated parent would spawn a high-integrity agent, whose named pipe is denied to medium-integrity
+        // terminals (UIPI). A limited scheduled task gives the agent medium integrity instead. Fall back to a plain
+        // elevated launch if the task route fails, so the bridge and keep-alive still work (only normal-terminal SSH
+        // would then be affected).
+        if (isElevated) {
+            if (startAgentAtMediumIntegrity(fileName)) {
+                return true;
+            }
+            LOGGER.Warn("Medium-integrity gpg-agent launch failed; falling back to an elevated launch (normal terminals will not see the ssh-agent pipe)");
+        }
+        return startAgentDirect(fileName);
+    }
+
+    /// <summary>Launches <paramref name="exePath"/> /bye directly in the current (same-integrity) context.</summary>
+    private static bool startAgentDirect(string fileName) {
         try {
             using var p = new Process {
                 StartInfo = new ProcessStartInfo(fileName, "/bye") {
@@ -85,6 +104,57 @@ internal static class GpgTools {
             return true;
         } catch (Exception e) when (e is not OutOfMemoryException) {
             LOGGER.Warn("Could not start gpg-agent via {fileName}: {message}", fileName, e.Message);
+            return false;
+        }
+    }
+
+    /// <summary>Whether this process runs elevated (high integrity); only then does the agent need downgrading.</summary>
+    private static bool isElevated {
+        get {
+            using var identity = WindowsIdentity.GetCurrent();
+            return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
+        }
+    }
+
+    /// <summary>Serializes the one-shot scheduled-task launch: the bridge, keep-alive, and settings dialog can call
+    /// <see cref="startAgent"/> concurrently, and the TaskService singleton is not documented thread-safe.</summary>
+    private static readonly object taskLaunchSync = new();
+
+    /// <summary>Launches <paramref name="exePath"/> /bye at medium integrity via a one-shot limited scheduled task, so
+    /// the gpg-agent it starts creates its openssh-ssh-agent named pipe at medium integrity — reachable from normal,
+    /// non-elevated terminals (issue #10). The task name is per-user (SID), (re)registered, run to completion, and
+    /// deleted. Returns whether the launch was submitted.</summary>
+    private static bool startAgentAtMediumIntegrity(string exePath) {
+        try {
+            string domainAndUsername = $@"{Environment.UserDomainName}\{Environment.UserName}";
+            string userSid = WindowsIdentity.GetCurrent().User?.Value ?? Environment.UserName;
+            string taskName = $"{Startup.PROGRAM_NAME}_gpg_agent_{userSid}";
+            lock (taskLaunchSync) {
+                TaskDefinition task = TaskService.Instance.NewTask();
+                task.Principal.LogonType = TaskLogonType.InteractiveToken;
+                task.Principal.UserId = domainAndUsername;
+                task.Principal.RunLevel = TaskRunLevel.LUA; // least-privileged = medium integrity (issue #10)
+                task.Settings.Enabled = true;
+                task.Actions.Add(exePath, "/bye");
+                TaskService.Instance.RootFolder.RegisterTaskDefinition(taskName, task, TaskCreation.CreateOrUpdate, domainAndUsername, null, TaskLogonType.InteractiveToken);
+                // Wait for the scheduler to launch the task and for /bye to finish (it spawns the agent and exits
+                // promptly), so LastTaskResult is meaningful and deleting the definition cannot race the launch.
+                RunningTask running = TaskService.Instance.GetTask(taskName).Run();
+                var deadline = DateTime.UtcNow.AddSeconds(5);
+                while (DateTime.UtcNow < deadline && running.State is TaskState.Queued or TaskState.Running) {
+                    Thread.Sleep(50);
+                }
+                if (running.State is TaskState.Queued or TaskState.Running) {
+                    LOGGER.Warn("gpg-agent medium-integrity launch task did not finish in 5 s");
+                } else if (running.LastTaskResult != 0) {
+                    LOGGER.Warn("gpg-connect-agent /bye (medium integrity) exited with {exitCode}", running.LastTaskResult);
+                }
+                TaskService.Instance.RootFolder.DeleteTask(taskName, false);
+            }
+            LOGGER.Debug("gpg-agent started at medium integrity via limited scheduled task (issue #10)");
+            return true;
+        } catch (Exception e) when (e is not OutOfMemoryException) {
+            LOGGER.Warn("Could not start gpg-agent at medium integrity via scheduled task: {message}", e.Message);
             return false;
         }
     }
