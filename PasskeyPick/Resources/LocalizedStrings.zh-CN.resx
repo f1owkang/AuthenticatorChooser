@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="securityKey" xml:space="preserve">
+    <value>安全密钥</value>
+  </data>
+  <data name="smartphone" xml:space="preserve">
+    <value>iPhone、iPad 或 Android 设备</value>
+  </data>
+  <data name="windows" xml:space="preserve">
+    <value>此 Windows 设备</value>
+  </data>
+  <data name="signInWithYourPasskey" xml:space="preserve">
+    <value>使用密钥登录</value>
+  </data>
+  <data name="useAnotherDevice" xml:space="preserve">
+    <value>使用其他设备</value>
+  </data>
+  <data name="makingSureItsYou" xml:space="preserve">
+    <value>请确认是你本人</value>
+  </data>
+  <data name="chooseAPasskey" xml:space="preserve">
+    <value>选择通行密钥</value>
+  </data>
+  <data name="signInWithAPasskey" xml:space="preserve">
+    <value>使用密钥登录</value>
+  </data>
+  <data name="chooseADifferentPasskey" xml:space="preserve">
+    <value>选择其他通行密钥</value>
+  </data>
+  <data name="makingSureItsYou2" xml:space="preserve">
+    <value>确保这是你本人</value>
+  </data>
+  <data name="trayEnableAutomaticSelection" xml:space="preserve">
+    <value>自动密钥</value>
+  </data>
+  <data name="trayExit" xml:space="preserve">
+    <value>退出程序</value>
+  </data>
+  <data name="trayLanguage" xml:space="preserve">
+    <value>程序语言</value>
+  </data>
+  <data name="trayFollowSystemLanguage" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="trayAuthenticator" xml:space="preserve">
+    <value>验证方法</value>
+  </data>
+  <data name="trayAuthenticatorDefault" xml:space="preserve">
+    <value>默认自动</value>
+  </data>
+  <data name="trayAuthenticatorUsb" xml:space="preserve">
+    <value>安全密钥</value>
+  </data>
+  <data name="trayAuthenticatorPairNewPhone" xml:space="preserve">
+    <value>配对手机</value>
+  </data>
+  <data name="trayAuthenticatorUseExistingPhone" xml:space="preserve">
+    <value>已有手机</value>
+  </data>
+  <data name="trayAutostartOnLogon" xml:space="preserve">
+    <value>开机自启</value>
+  </data>
+  <data name="autostartRegisterFailed" xml:space="preserve">
+    <value>无法注册程序开机自启。</value>
+  </data>
+  <data name="traySecurityKeyPin" xml:space="preserve">
+    <value>PIN 设置</value>
+  </data>
+  <data name="trayPinCache" xml:space="preserve">
+    <value>PIN 缓存</value>
+  </data>
+  <data name="trayTtlSubmenu" xml:space="preserve">
+    <value>过期时间（TTL）</value>
+  </data>
+  <data name="trayTtl5Min" xml:space="preserve">
+    <value>5 分钟</value>
+  </data>
+  <data name="trayTtl10Min" xml:space="preserve">
+    <value>10 分钟</value>
+  </data>
+  <data name="trayTtl30Min" xml:space="preserve">
+    <value>30 分钟</value>
+  </data>
+  <data name="trayTtl1Hour" xml:space="preserve">
+    <value>1 小时</value>
+  </data>
+  <data name="trayTtlUntilExit" xml:space="preserve">
+    <value>直到退出</value>
+  </data>
+  <data name="trayPinClearOnLock" xml:space="preserve">
+    <value>锁屏时失效</value>
+  </data>
+  <data name="trayPinClearOnSleep" xml:space="preserve">
+    <value>睡眠时失效</value>
+  </data>
+  <data name="trayPinClearOnHibernate" xml:space="preserve">
+    <value>休眠时失效</value>
+  </data>
+  <data name="pinDialogTitle" xml:space="preserve">
+    <value>缓存安全密钥 PIN</value>
+  </data>
+  <data name="pinDialogPin" xml:space="preserve">
+    <value>PIN：</value>
+  </data>
+  <data name="pinDialogConfirm" xml:space="preserve">
+    <value>确认 PIN：</value>
+  </data>
+  <data name="pinDialogHint" xml:space="preserve">
+    <value>仅在内存中加密缓存（从不写入磁盘），程序运行期间有效。</value>
+  </data>
+  <data name="pinDialogCacheButton" xml:space="preserve">
+    <value>缓存 PIN</value>
+  </data>
+  <data name="pinDialogClearButton" xml:space="preserve">
+    <value>清除已缓存 PIN</value>
+  </data>
+  <data name="pinDialogCancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="pinDialogEmpty" xml:space="preserve">
+    <value>PIN 不能为空。</value>
+  </data>
+  <data name="pinDialogMismatch" xml:space="preserve">
+    <value>两次输入的 PIN 不一致。</value>
+  </data>
+  <data name="pinDialogMultiKey" xml:space="preserve">
+    <value>检测到多把安全密钥。PIN 缓存只在单把密钥时安全（缓存的一把密钥的 PIN 可能被输入到另一把密钥而导致其被锁死）。请移除多余密钥后重试。</value>
+  </data>
+  <data name="pinDialogError" xml:space="preserve">
+    <value>无法在内存中加密 PIN。</value>
+  </data>
+  <data name="pinDialogTtl" xml:space="preserve">
+    <value>缓存的 PIN 将在 {0} 秒后过期。</value>
+  </data>
+  <data name="pinDialogTtlUnlimited" xml:space="preserve">
+    <value>缓存的 PIN 在程序退出前一直有效。</value>
+  </data>
+  <data name="pinDialogTtlRemaining" xml:space="preserve">
+    <value>缓存的 PIN 将于 {0} 后过期。</value>
+  </data>
+</root>

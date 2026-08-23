@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0-windows10.0.19041": {
+      "McMaster.Extensions.CommandLineUtils": {
+        "type": "Direct",
+        "requested": "[5.1.0, )",
+        "resolved": "5.1.0",
+        "contentHash": "YceiKmxdsBrlkAJpmJ2N8XkLyAH01xLsm4VLfjNp5MvtAom2wflZtEBz3CLMQret6Z7jSh3oBO1ULF1Is0tNxA=="
+      },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[10.0.10, )",
+        "resolved": "10.0.10",
+        "contentHash": "f5VCIE7AJpd5YvzNTeMGVzQIgyE9tX+AreTYwQF+REbu+DZo/2Ae+jNSwhPEYrVz6RRkd7y8ubXjk6Nn6Ka+Cg=="
+      },
+      "mwinapi": {
+        "type": "Direct",
+        "requested": "[0.3.0.6, )",
+        "resolved": "0.3.0.6",
+        "contentHash": "ifbh/zHTsN+hrT2kBE4he8+Bq9DS/9b8tA0aVIdJCOK3Y4O0hdFtZSiQHpJX1YkH4/JMmF0V5hHQDahS5i9U1g==",
+        "dependencies": {
+          "System.Management": "6.0.0"
+        }
+      },
+      "TaskScheduler": {
+        "type": "Direct",
+        "requested": "[2.12.2, )",
+        "resolved": "2.12.2",
+        "contentHash": "glpAb3VrwfdAofp6PIyAzL0ZeTV7XUJ8muu0oZoTeyU5jtk2sMJ6QAMRRuFbovcaj+SBJiEUGklxIWOqQoxshA=="
+      },
+      "Unfucked.Windows": {
+        "type": "Direct",
+        "requested": "[0.0.1-beta.11, )",
+        "resolved": "0.0.1-beta.11",
+        "contentHash": "lb6D6VI8pFcuP9Y71jsGNIsZGJLU77aRyj5nmkC2HRDBDaMqAvYkX7zuOfWDnBBPcw30Qcs/FuhRneJejBLS7Q==",
+        "dependencies": {
+          "ThrottleDebounce": "3.0.0-beta6",
+          "Unfucked": "0.0.1-beta.40",
+          "mwinapi": "0.3.0.6"
+        }
+      },
+      "Workshell.PE.Resources": {
+        "type": "Direct",
+        "requested": "[4.0.0.147, )",
+        "resolved": "4.0.0.147",
+        "contentHash": "ZX8AusOHS5MeLrfLar2kHE6QqCyF/XRkkuPczfhoIGo0geI9DHqwyu303rw+Q+gaoBcdi7GkwB+v6QRUvIzdgA==",
+        "dependencies": {
+          "Workshell.PE": "4.0.0.147"
+        }
+      },
+      "System.Management": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "sHsESYMmPDhQuOC66h6AEOs/XowzKsbT9srMbX71TCXP58hkpn1BqBjdmKj1+DCA/WlBETX1K5WjQHwmV0Txrg=="
+      },
+      "ThrottleDebounce": {
+        "type": "Transitive",
+        "resolved": "3.0.0-beta6",
+        "contentHash": "hLr071LwvbfwNvjsnEb5FP7BNnmu4qG6++ZHAdVEaLCv01BQ9m3G1PLKv/C8DPJ9hFcs+3EUNh+c9/Lg459HIw=="
+      },
+      "Unfucked": {
+        "type": "Transitive",
+        "resolved": "0.0.1-beta.40",
+        "contentHash": "9V3WIbszgP5JPkbeoy3N5kA3WRqnXLXNV0Zi4X/LO0gW/uCrTar7714juleFVaE2KWPtrS5Me245PprN86Vy/A=="
+      },
+      "Workshell.PE": {
+        "type": "Transitive",
+        "resolved": "4.0.0.147",
+        "contentHash": "iDvqFHgx9j4jlfRQEMk6VM5kf3AKVim7ZVveap96hxYh5ppRTY83f4ByNdvTHS9Jw3t6h2KPK8ZtRW7rinna1g=="
+      }
+    },
+    "net10.0-windows10.0.19041/win-arm64": {
+      "System.Management": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "sHsESYMmPDhQuOC66h6AEOs/XowzKsbT9srMbX71TCXP58hkpn1BqBjdmKj1+DCA/WlBETX1K5WjQHwmV0Txrg=="
+      }
+    },
+    "net10.0-windows10.0.19041/win-x64": {
+      "System.Management": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "sHsESYMmPDhQuOC66h6AEOs/XowzKsbT9srMbX71TCXP58hkpn1BqBjdmKj1+DCA/WlBETX1K5WjQHwmV0Txrg=="
+      }
+    }
+  }
+}

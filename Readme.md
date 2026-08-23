@@ -1,7 +1,7 @@
-<img src="AuthenticatorChooser/YubiKey.ico" height="24" alt="YubiKey 5 NFC USB-A" /> AuthenticatorChooser
+<img src="PasskeyPick/YubiKey.ico" height="24" alt="YubiKey 5 NFC USB-A" /> PasskeyPick
 ===
 
-[![Download count](https://img.shields.io/github/downloads/f1owkang/AuthenticatorChooser/total?logo=github)](https://github.com/f1owkang/AuthenticatorChooser/releases) [![Build status](https://img.shields.io/github/actions/workflow/status/f1owkang/AuthenticatorChooser/dotnet.yml?branch=master&logo=github)](https://github.com/f1owkang/AuthenticatorChooser/actions/workflows/dotnet.yml)
+[![Download count](https://img.shields.io/github/downloads/f1owkang/PasskeyPick/total?logo=github)](https://github.com/f1owkang/PasskeyPick/releases) [![Build status](https://img.shields.io/github/actions/workflow/status/f1owkang/PasskeyPick/dotnet.yml?branch=master&logo=github)](https://github.com/f1owkang/PasskeyPick/actions/workflows/dotnet.yml)
 
 *带系统托盘图标的后台程序，自动跳过「配对手机」选项，并在 Windows FIDO/WebAuthn 弹窗中自动选择「USB 安全密钥」。*
 *Background program with a system tray icon that skips the phone pairing option and chooses the USB security key in Windows FIDO/WebAuthn prompts.*
@@ -166,7 +166,7 @@ If no rules are configured, the default behavior (prefer the USB security key) i
   - **锁屏时失效 / 睡眠时失效 / 休眠时失效（Forget on lock / sleep / hibernate）** —— 三个开关，勾选后分别在 Windows 锁屏、睡眠、休眠时自动清除缓存的 PIN。
 - **退出（Exit）** —— 退出程序，作为在任务管理器中结束进程的替代方式。
 
-以下偏好都会持久化到 `%APPDATA%\AuthenticatorChooser\settings.json`，重启后自动恢复：界面语言、「自动密钥」开关、首选验证方法、PIN 缓存 TTL 与锁屏/睡眠/休眠失效开关。PIN 本身从不写入磁盘。
+以下偏好都会持久化到 `%APPDATA%\PasskeyPick\settings.json`，重启后自动恢复：界面语言、「自动密钥」开关、首选验证方法、PIN 缓存 TTL 与锁屏/睡眠/休眠失效开关。PIN 本身从不写入磁盘。
 
 **English**: A system tray icon appears while the program is running. Right-click it to:
 
@@ -180,7 +180,7 @@ If no rules are configured, the default behavior (prefer the USB security key) i
   - **Forget on lock / sleep / hibernate** — three toggles that clear the cached PIN when Windows locks, sleeps, or hibernates.
 - **Exit** — quits the program, as an alternative to ending it in Task Manager.
 
-The following preferences are persisted to `%APPDATA%\AuthenticatorChooser\settings.json` and restored after a restart: the UI language, the automatic-selection toggle, the preferred authenticator, and the PIN cache TTL and lock/sleep/hibernate toggles. The PIN itself is never written to disk.
+The following preferences are persisted to `%APPDATA%\PasskeyPick\settings.json` and restored after a restart: the UI language, the automatic-selection toggle, the preferred authenticator, and the PIN cache TTL and lock/sleep/hibernate toggles. The PIN itself is never written to disk.
 
 <p align="center"><img src=".github/images/settings-en.png" alt="PIN 设置子菜单（English）" width="340" /> <img src=".github/images/settings-cn.png" alt="PIN 设置子菜单（中文）" width="340" /></p>
 
@@ -202,36 +202,36 @@ The following preferences are persisted to `%APPDATA%\AuthenticatorChooser\setti
 
 **中文**：
 
-1. [下载与你 CPU 架构对应的最新发布版 ZIP 压缩包。](https://github.com/f1owkang/AuthenticatorChooser/releases/latest)
-1. 将压缩包中的 `AuthenticatorChooser.exe` 解压到你选择的目录，例如 `C:\Program Files\AuthenticatorChooser\`。
+1. [下载与你 CPU 架构对应的最新发布版 ZIP 压缩包。](https://github.com/f1owkang/PasskeyPick/releases/latest)
+1. 将压缩包中的 `PasskeyPick.exe` 解压到你选择的目录，例如 `C:\Program Files\PasskeyPick\`。
     - 发布版为框架依赖的单文件（约 2 MB），首次运行前需安装 [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)。
-1. 双击 `AuthenticatorChooser.exe` 运行程序。
-    - 程序没有主窗口，运行后驻留在系统托盘中（右键托盘图标可打开设置菜单），但你可以通过任务管理器中搜索 `AuthenticatorChooser` 来确认它在运行。
+1. 双击 `PasskeyPick.exe` 运行程序。
+    - 程序没有主窗口，运行后驻留在系统托盘中（右键托盘图标可打开设置菜单），但你可以通过任务管理器中搜索 `PasskeyPick` 来确认它在运行。
 1. 若希望在登录 Windows 时自动运行，**右键系统托盘图标 → 勾选「开机自启」**（详见[系统托盘图标](#系统托盘图标--system-tray-icon)）。如果你还想指定额外的命令行参数（如 `--skip-all-non-security-key-options`），也可以在启动程序时一并传入。
-    - 等效地，也可以在命令行运行一次 `.\AuthenticatorChooser --autostart-on-logon`，或自行在任务计划程序中新建一个以你的用户身份、最高权限启动 `AuthenticatorChooser.exe` 的任务。
+    - 等效地，也可以在命令行运行一次 `.\PasskeyPick --autostart-on-logon`，或自行在任务计划程序中新建一个以你的用户身份、最高权限启动 `PasskeyPick.exe` 的任务。
 
 **English**:
 
-1. [Download the latest release ZIP archive for your CPU architecture.](https://github.com/f1owkang/AuthenticatorChooser/releases/latest)
-1. Extract the `AuthenticatorChooser.exe` file from the ZIP archive to a directory of your choice, like `C:\Program Files\AuthenticatorChooser\`.
+1. [Download the latest release ZIP archive for your CPU architecture.](https://github.com/f1owkang/PasskeyPick/releases/latest)
+1. Extract the `PasskeyPick.exe` file from the ZIP archive to a directory of your choice, like `C:\Program Files\PasskeyPick\`.
     - The release is a framework-dependent single file (~2 MB); install the [.NET Desktop Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) before the first run.
-1. Run the program by double-clicking `AuthenticatorChooser.exe`.
-    - No main window will appear — the program runs in the system tray (right-click its icon for the settings menu) — but you can tell it's running by searching for `AuthenticatorChooser` in Task Manager.
+1. Run the program by double-clicking `PasskeyPick.exe`.
+    - No main window will appear — the program runs in the system tray (right-click its icon for the settings menu) — but you can tell it's running by searching for `PasskeyPick` in Task Manager.
 1. To start automatically when you log in to Windows, **right-click the tray icon and check "Start automatically at logon"** (see [System tray icon](#系统托盘图标--system-tray-icon)). If you'd like to specify additional command-line arguments like `--skip-all-non-security-key-options`, you can pass them when launching the program too.
-    - Alternatively, run `.\AuthenticatorChooser --autostart-on-logon` once on the command line, or create a Task Scheduler task that starts `AuthenticatorChooser.exe` as your user with highest privileges.
-    - Manually add a new task to Task Scheduler that starts `AuthenticatorChooser.exe` as your user with highest privileges when you log in to Windows
+    - Alternatively, run `.\PasskeyPick --autostart-on-logon` once on the command line, or create a Task Scheduler task that starts `PasskeyPick.exe` as your user with highest privileges.
+    - Manually add a new task to Task Scheduler that starts `PasskeyPick.exe` as your user with highest privileges when you log in to Windows
 
 ## 安全 / Security
 
 **中文**：本程序必须**始终以管理员权限运行**，才能与 Windows 安全中心（`CredentialUIBroker.exe`，以更高的完整性级别运行）的 FIDO 弹窗交互——这是 Windows 用户界面特权隔离（UIPI）的要求，无法在普通权限下工作。
 
-由于程序以最高权限常驻后台，请把它部署到**受保护目录**（例如 `C:\Program Files\AuthenticatorChooser\`），不要放在低权限用户可写的目录，否则低权限用户可能利用 DLL 搜索顺序劫持加载恶意 DLL，或篡改 `priority.txt` 把认证重定向到恶意提供商。程序在启动时会检查部署目录是否可被低权限用户写入，并在日志中警告；`priority.txt` 的属主若不是你本人或本地管理员，程序会忽略该文件。
+由于程序以最高权限常驻后台，请把它部署到**受保护目录**（例如 `C:\Program Files\PasskeyPick\`），不要放在低权限用户可写的目录，否则低权限用户可能利用 DLL 搜索顺序劫持加载恶意 DLL，或篡改 `priority.txt` 把认证重定向到恶意提供商。程序在启动时会检查部署目录是否可被低权限用户写入，并在日志中警告；`priority.txt` 的属主若不是你本人或本地管理员，程序会忽略该文件。
 
 程序只会与**微软签名、位于 System32 的系统进程**（`CredentialUIBroker.exe`、`Consent.exe` 等）持有的 FIDO 弹窗交互，其他进程无法伪造弹窗来窃取缓存的安全密钥 PIN。
 
 **English**: This program must **always run as administrator** to interact with the Windows Security FIDO dialogs, which are hosted by `CredentialUIBroker.exe` at a higher integrity level — Windows User Interface Privilege Isolation (UIPI) requires this, and it cannot work unelevated.
 
-Because it runs elevated in the background, install it in a **protected directory** (for example `C:\Program Files\AuthenticatorChooser\`), not in a directory writable by lower-privileged users, or a lower-privileged user could hijack DLL search order to load a malicious DLL, or tamper with `priority.txt` to redirect authentication to a malicious provider. On startup the program checks whether its directory is writable by unprivileged users and warns in the log; a `priority.txt` whose owner is neither you nor a local administrator is ignored.
+Because it runs elevated in the background, install it in a **protected directory** (for example `C:\Program Files\PasskeyPick\`), not in a directory writable by lower-privileged users, or a lower-privileged user could hijack DLL search order to load a malicious DLL, or tamper with `priority.txt` to redirect authentication to a malicious provider. On startup the program checks whether its directory is writable by unprivileged users and warns in the log; a `priority.txt` whose owner is neither you nor a local administrator is ignored.
 
 The program only interacts with FIDO dialogs owned by **Microsoft-signed system processes in System32** (`CredentialUIBroker.exe`, `Consent.exe`, etc.), so other processes cannot spoof a prompt to steal the cached security key PIN.
 
@@ -249,18 +249,18 @@ The program only interacts with FIDO dialogs owned by **Microsoft-signed system 
 
 ## 构建 / Building
 
-**中文**：如果你想自己构建该应用而不是从[发布页](https://github.com/f1owkang/AuthenticatorChooser/releases)下载预编译二进制，可以按以下步骤操作。
+**中文**：如果你想自己构建该应用而不是从[发布页](https://github.com/f1owkang/PasskeyPick/releases)下载预编译二进制，可以按以下步骤操作。
 
 1. 安装[最新稳定版 .NET SDK](https://dotnet.microsoft.com/en-us/download)（10 或更高版本）。
 1. 克隆本仓库。
     ```ps1
-    git clone "https://github.com/f1owkang/AuthenticatorChooser.git"
+    git clone "https://github.com/f1owkang/PasskeyPick.git"
     ```
 1. 进入项目目录。
     ```ps1
-    cd .\AuthenticatorChooser\AuthenticatorChooser\
+    cd .\PasskeyPick\PasskeyPick\
     ```
-1. 选择要构建的[版本标签](https://github.com/f1owkang/AuthenticatorChooser/tags)，或跳过此步以使用 `master` 分支的最新提交。
+1. 选择要构建的[版本标签](https://github.com/f1owkang/PasskeyPick/tags)，或跳过此步以使用 `master` 分支的最新提交。
     ```sh
     git checkout 0.6.0
     ```
@@ -271,23 +271,23 @@ The program only interacts with FIDO dialogs owned by **Microsoft-signed system 
 
 假设你的 CPU 架构是 x64，程序将发布为以下路径的单文件可执行文件。
 ```text
-.\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\AuthenticatorChooser.exe
+.\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\PasskeyPick.exe
 ```
 
 如果你更喜欢 IDE，也可以使用 [Visual Studio](https://visualstudio.microsoft.com/vs/) Community 2022 或 2026 等集成开发环境。
 
-**English**: If you want to build this application yourself instead of downloading precompiled binaries from the [releases](https://github.com/f1owkang/AuthenticatorChooser/releases) page, you can follow these steps.
+**English**: If you want to build this application yourself instead of downloading precompiled binaries from the [releases](https://github.com/f1owkang/PasskeyPick/releases) page, you can follow these steps.
 
 1. Install the [latest stable .NET SDK](https://dotnet.microsoft.com/en-us/download) (10 or later).
 1. Clone this repository.
     ```ps1
-    git clone "https://github.com/f1owkang/AuthenticatorChooser.git"
+    git clone "https://github.com/f1owkang/PasskeyPick.git"
     ```
 1. Go to the project directory.
     ```ps1
-    cd .\AuthenticatorChooser\AuthenticatorChooser\
+    cd .\PasskeyPick\PasskeyPick\
     ```
-1. Choose one of the [version tags](https://github.com/f1owkang/AuthenticatorChooser/tags) to build, or skip this step to use the head commit on the `master` branch.
+1. Choose one of the [version tags](https://github.com/f1owkang/PasskeyPick/tags) to build, or skip this step to use the head commit on the `master` branch.
     ```sh
     git checkout 0.6.0
     ```
@@ -298,7 +298,7 @@ The program only interacts with FIDO dialogs owned by **Microsoft-signed system 
 
 The program will be published to the following path as a single-file executable, assuming your CPU architecture is x64.
 ```text
-.\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\AuthenticatorChooser.exe
+.\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\PasskeyPick.exe
 ```
 
 You can also use an IDE like [Visual Studio](https://visualstudio.microsoft.com/vs/) Community 2022 or 2026 instead of the command line if you prefer.
