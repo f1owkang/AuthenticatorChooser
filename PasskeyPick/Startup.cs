@@ -52,6 +52,10 @@ public class Startup {
     [Option("--pin-clear-on-hibernate", CommandOptionType.NoValue)]
     public bool pinClearOnHibernate { get; }
 
+    // Advanced, not promoted (GUI-first): overrides the bridge listen port from the settings dialog.
+    [Option("--gpg-bridge-port", CommandOptionType.SingleValue)]
+    public int? gpgBridgePort { get; }
+
     [Option("-l|--log", CommandOptionType.SingleOrNoValue)]
     public (bool enabled, string? filename) log { get; }
 
@@ -77,6 +81,9 @@ public class Startup {
             // Load persisted preferences (UI language, auto-select, preferred authenticator, PIN cache); explicit
             // command-line arguments take precedence. The PIN itself is never persisted.
             Settings.load();
+            if (gpgBridgePort is { } bridgePort) {
+                Settings.gpgBridgePort = Math.Clamp(bridgePort, 1, 65535);
+            }
             if (pinCacheTtlSeconds is { } ttlSeconds) {
                 Settings.pinCacheTtlSeconds = ttlSeconds;
             }
@@ -211,6 +218,9 @@ public class Startup {
             {processFilename} --log[=$filename]
                 Runs this program in the background like the first example, and logs debug messages to a text file. If you don't specify $filename, it goes to {Path.Combine(Environment.GetEnvironmentVariable("TEMP") ?? "%TEMP%", PROGRAM_NAME + ".log")}.
               
+            {processFilename} --gpg-bridge-port=$port
+                Advanced: overrides the GPG bridge listen port (default 4321). Prefer setting it in the tray menu's "GPG Settings" dialog.
+
             {processFilename} --help
                 Shows this usage.
                 

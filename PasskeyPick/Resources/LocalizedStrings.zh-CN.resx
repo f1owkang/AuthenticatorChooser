@@ -273,4 +273,112 @@
   <data name="rdpSessionReminder" xml:space="preserve">
     <value>当前似乎是远程桌面会话。Windows FIDO 弹窗显示在 RDP 客户端上，因此需要在本机（客户端）安装 PasskeyPick 才能自动选择安全密钥。</value>
   </data>
+    <data name="trayGpgSettings" xml:space="preserve">
+    <value>GPG 设置</value>
+  </data>
+  <data name="trayGpgDiagnostics" xml:space="preserve">
+    <value>GPG 诊断</value>
+  </data>
+  <data name="gpgSettingsTitle" xml:space="preserve">
+    <value>GPG 设置</value>
+  </data>
+  <data name="gpgSettingsBridge" xml:space="preserve">
+    <value>GPG-agent 转发</value>
+  </data>
+  <data name="gpgSettingsAgentAutostart" xml:space="preserve">
+    <value>GPG-agent 守护</value>
+  </data>
+  <data name="gpgSettingsPort" xml:space="preserve">
+    <value>GPG 转发端口</value>
+  </data>
+  <data name="gpgSettingsSshExample" xml:space="preserve">
+    <value>SSH 配置示例</value>
+  </data>
+    <data name="gpgSettingsSave" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="gpgSettingsCancel" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="gpgSettingsStatus" xml:space="preserve">
+    <value>运行状态</value>
+  </data>
+          <data name="gpgSettingsPortInUse" xml:space="preserve">
+    <value>未运行：端口 {0} 被占用或不可用</value>
+  </data>
+  <data name="gpgSettingsStateMismatch" xml:space="preserve">
+    <value>已启用但未运行，请检查状态</value>
+  </data>
+  <data name="gpgSettingsGpg4winDetected" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="gpgSettingsGpg4winMissing" xml:space="preserve">
+    <value>未检测到，请安装 https://gpg4win.org</value>
+  </data>
+  <data name="gpgDiagnosticsTitle" xml:space="preserve">
+    <value>GPG 诊断</value>
+  </data>
+  <data name="gpgDiagnosticsCopy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="gpgDiagnosticsRefresh" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="gpgDiagnosticsClose" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="gpgDiagnosticsLoading" xml:space="preserve">
+    <value>正在收集诊断信息…</value>
+  </data>
+  <data name="gpgAgentUnavailableTitle" xml:space="preserve">
+    <value>未检测到 Gpg4win</value>
+  </data>
+  <data name="gpgAgentUnavailableBody" xml:space="preserve">
+    <value>GPG 功能需要 Gpg4win，请先安装：https://gpg4win.org</value>
+  </data>
+  <data name="gpgBridgeStartFailedTitle" xml:space="preserve">
+    <value>GPG 桥启动失败</value>
+  </data>
+  <data name="gpgBridgeStartFailedBody" xml:space="preserve">
+    <value>端口 {0} 被占用或无法监听</value>
+  </data>
+  <data name="gpgBridgeEnabledTitle" xml:space="preserve">
+    <value>GPG 转发已启用</value>
+  </data>
+  <data name="gpgBridgeEnabledBody" xml:space="preserve">
+    <value>本机任何进程（含其他账户）现在都能通过端口 {0} 以你的身份签名，等价于 ssh -A；仅在可信的单用户机器上启用。</value>
+  </data>
+  <data name="gpgAgentRestartedTitle" xml:space="preserve">
+    <value>gpg-agent 已重启</value>
+  </data>
+  <data name="gpgAgentRestartedBody" xml:space="preserve">
+    <value>检测到 gpg-agent 失效，已自动重新拉起</value>
+  </data>
+  <data name="gpgSettingsSwitches" xml:space="preserve">
+    <value>功能配置</value>
+  </data>
+  <data name="gpgSettingsBridgeWarning" xml:space="preserve">
+    <value>启用「GPG-agent 转发」后，本机任何进程（含其他账户）都能以你的身份对 gpg-agent 发起签名，等价于 ssh -A；不要在共享电脑上启用。</value>
+  </data>
+  <data name="gpgSettingsParams" xml:space="preserve">
+    <value>转发参数</value>
+  </data>
+  <data name="gpgSettingsStatusAgent" xml:space="preserve">
+    <value>GPG-agent 状态</value>
+  </data>
+  <data name="gpgSettingsStatusRunning" xml:space="preserve">
+    <value>运行中</value>
+  </data>
+  <data name="gpgSettingsStatusStopped" xml:space="preserve">
+    <value>已停止</value>
+  </data>
+  <data name="gpgSettingsStatusGpg4win" xml:space="preserve">
+    <value>Gpg4win</value>
+  </data>
+  <data name="pinDialogInputGroup" xml:space="preserve">
+    <value>输入 PIN</value>
+  </data>
+  <data name="pinDialogStatusGroup" xml:space="preserve">
+    <value>缓存状态</value>
+  </data>
 </root>

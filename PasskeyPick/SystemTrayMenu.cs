@@ -89,6 +89,10 @@ public sealed class SystemTrayMenu {
         // Less-frequent PIN settings (TTL presets and lock/sleep/hibernate clear flags) grouped in a submenu.
         MenuStrip.Items.Add(buildPinSubmenu());
 
+        // GPG config hub + diagnostics as top-level items (no submenu).
+        MenuStrip.Items.Add(buildGpgSettingsItem());
+        MenuStrip.Items.Add(buildGpgDiagnosticsItem());
+
         MenuStrip.Items.Add(new ToolStripSeparator());
 
         var exitItem = new ToolStripMenuItem(UiLanguage.get("trayExit"));
@@ -126,6 +130,30 @@ public sealed class SystemTrayMenu {
             () => PinCache.clearOnHibernateEnabled = !PinCache.clearOnHibernateEnabled));
 
         return submenu;
+    }
+
+    /// <summary>Opens the GPG config hub (issues #7, #8). Checkmarked while any GPG feature is running
+    /// (closed loop, refreshed on menu open).</summary>
+    private ToolStripMenuItem buildGpgSettingsItem() {
+        var settings = new ToolStripMenuItem(UiLanguage.get("trayGpgSettings"));
+        register(text => settings.Text = text, "trayGpgSettings");
+        settings.Click += (_, _) => {
+            using var dialog = new GpgSettingsDialog();
+            dialog.ShowDialog();
+        };
+        checkedItems.Add((settings, () => GpgBridge.isRunning || GpgAgentManager.isActive));
+        return settings;
+    }
+
+    /// <summary>Opens the copyable GPG diagnostics report (issue #8).</summary>
+    private ToolStripMenuItem buildGpgDiagnosticsItem() {
+        var diagnostics = new ToolStripMenuItem(UiLanguage.get("trayGpgDiagnostics"));
+        register(text => diagnostics.Text = text, "trayGpgDiagnostics");
+        diagnostics.Click += (_, _) => {
+            using var dialog = new GpgDiagnosticsDialog();
+            dialog.ShowDialog();
+        };
+        return diagnostics;
     }
 
     /// <summary>Builds one TTL preset menu item; the presets are mutually exclusive (single checked item).</summary>

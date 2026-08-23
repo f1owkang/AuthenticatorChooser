@@ -4,47 +4,22 @@ namespace PasskeyPick;
 
 /// <summary>Modal dialog that collects the USB security key's FIDO2 PIN once (typed, never shown on a command line) and
 /// caches it in memory via <see cref="PinCache"/> (never written to disk). Refuses to store a PIN when more than one
-/// security key is attached, to avoid feeding the wrong key and locking it out.</summary>
-internal sealed class PinSetupDialog: Form {
+/// security key is attached, to avoid feeding the wrong key and locking it out. Grouped layout matching the GPG
+/// settings dialog: an "Enter PIN" section with a right-aligned two-column grid and a "Cache status" section.</summary>
+internal sealed class PinSetupDialog: BaseDialog {
 
-    private readonly TextBox pinBox     = new() { UseSystemPasswordChar = true };
-    private readonly TextBox confirmBox = new() { UseSystemPasswordChar = true };
+    private readonly TextBox pinBox     = new() { UseSystemPasswordChar = true, Width = 220 };
+    private readonly TextBox confirmBox = new() { UseSystemPasswordChar = true, Width = 220 };
     private readonly Label   ttlLabel   = new() { AutoSize = true, ForeColor = System.Drawing.SystemColors.GrayText };
     private readonly System.Windows.Forms.Timer refreshTimer = new() { Interval = 1000 };
 
     public PinSetupDialog() {
         Text            = $"{Startup.PROGRAM_NAME} - {UiLanguage.get("pinDialogTitle")}";
-        FormBorderStyle = FormBorderStyle.FixedDialog;
-        MaximizeBox     = false;
-        MinimizeBox     = false;
-        StartPosition   = FormStartPosition.CenterScreen;
-        AutoSize        = true;
-        AutoSizeMode    = AutoSizeMode.GrowAndShrink;
-        Padding         = new Padding(14);
         FormClosed      += (_, _) => refreshTimer.Dispose();
 
-        // Vertical layout: each label sits above its field in a single column; the height auto-sizes.
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1 };
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-
-        int row = 0;
-        row = addField(layout, UiLanguage.get("pinDialogPin"), pinBox, row);
-        row = addField(layout, UiLanguage.get("pinDialogConfirm"), confirmBox, row);
-
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.Controls.Add(new Label {
-            Text = UiLanguage.get("pinDialogHint"),
-            AutoSize = true,
-            ForeColor = System.Drawing.SystemColors.GrayText
-        }, 0, row);
-
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.Controls.Add(ttlLabel, 0, row + 1);
-
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, AutoSize = true };
-        var save    = new Button { Text = UiLanguage.get("pinDialogCacheButton"), DialogResult = DialogResult.OK, Enabled = false };
-        var clear   = new Button { Text = UiLanguage.get("pinDialogClearButton") };
-        var cancel  = new Button { Text = UiLanguage.get("pinDialogCancel"), DialogResult = DialogResult.Cancel };
+        var save   = new Button { Text = UiLanguage.get("pinDialogCacheButton"), DialogResult = DialogResult.OK, Enabled = false };
+        var clear  = new Button { Text = UiLanguage.get("pinDialogClearButton") };
+        var cancel = new Button { Text = UiLanguage.get("pinDialogCancel"), DialogResult = DialogResult.Cancel };
 
         save.Click += (_, _) => {
             if (pinBox.Text.Length == 0) {
@@ -74,13 +49,18 @@ internal sealed class PinSetupDialog: Form {
         };
         pinBox.TextChanged += (_, _) => save.Enabled = pinBox.Text.Length > 0;
 
-        buttons.Controls.Add(cancel);
-        buttons.Controls.Add(clear);
-        buttons.Controls.Add(save);
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.Controls.Add(buttons, 0, row + 2);
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1 };
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
-        Controls.Add(layout);
+        int row = 0;
+        root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        root.Controls.Add(buildInputGroup(), 0, row++);
+        root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        root.Controls.Add(buildStatusGroup(), 0, row++);
+        root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        root.Controls.Add(buildButtonRow(cancel, clear, save), 0, row);
+
+        Controls.Add(root);
         AcceptButton = save;
         CancelButton = cancel;
 
@@ -89,13 +69,34 @@ internal sealed class PinSetupDialog: Form {
         refreshTimer.Start();
     }
 
-    private static int addField(TableLayoutPanel layout, string label, Control field, int row) {
+    /// <summary>The "Enter PIN" section: PIN and confirm fields in a right-aligned two-column grid.</summary>
+    private GroupBox buildInputGroup() {
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 2 };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        int row = 0;
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.Controls.Add(new Label { Text = label, AutoSize = true, Anchor = AnchorStyles.Left }, 0, row);
+        layout.Controls.Add(buildFieldLabel(UiLanguage.get("pinDialogPin")), 0, row);
+        pinBox.Anchor = AnchorStyles.Left;
+        layout.Controls.Add(pinBox, 1, row++);
+
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        field.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-        layout.Controls.Add(field, 0, row + 1);
-        return row + 2;
+        layout.Controls.Add(buildFieldLabel(UiLanguage.get("pinDialogConfirm")), 0, row);
+        confirmBox.Anchor = AnchorStyles.Left;
+        layout.Controls.Add(confirmBox, 1, row);
+
+        return buildGroup(UiLanguage.get("pinDialogInputGroup"), layout);
+    }
+
+    /// <summary>The "Cache status" section: the memory-only hint and the TTL countdown.</summary>
+    private GroupBox buildStatusGroup() {
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1 };
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.Controls.Add(new Label { Text = UiLanguage.get("pinDialogHint"), AutoSize = true, ForeColor = System.Drawing.SystemColors.GrayText }, 0, 0);
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.Controls.Add(ttlLabel, 0, 1);
+        return buildGroup(UiLanguage.get("pinDialogStatusGroup"), layout);
     }
 
     private void updateTtlHint() {

@@ -28,6 +28,10 @@ public sealed class TrayApplicationContext : ApplicationContext {
 
         startBackgroundFidoListener(options);
         startUpdateChecker();
+
+        TrayNotifications.initialize(trayIcon);
+        GpgAgentManager.startIfEnabled();
+        GpgBridge.startIfEnabled();
     }
 
     /// <summary>Opens the PIN cache/clear dialog when the tray icon is double-clicked.</summary>
@@ -97,6 +101,8 @@ public sealed class TrayApplicationContext : ApplicationContext {
         trayIcon.Visible = false;
         trayIcon.Dispose();
         fidoListener?.Dispose();
+        GpgBridge.stop();
+        GpgAgentManager.stop();
         Startup.requestExit();
         ExitThread();
     }

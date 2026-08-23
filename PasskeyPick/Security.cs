@@ -52,19 +52,20 @@ internal static class Security {
     /// <summary>
     /// Whether <paramref name="path"/> is owned by the current user or a local administrator/system account. A
     /// priority.txt owned by anyone else may have been planted by a lower-privileged user, so it must not be trusted.
-    /// Returns <see langword="true"/> when ownership cannot be read, to avoid breaking a working setup.
+    /// Returns <see langword="false"/> when ownership cannot be read — an unverifiable owner is not trusted
+    /// (fail closed), so a config file that cannot be vetted is simply ignored by its caller.
     /// </summary>
     public static bool isOwnedByTrustedPrincipal(string path) {
         try {
             if (new FileInfo(path).GetAccessControl(AccessControlSections.Owner).GetOwner(typeof(SecurityIdentifier)) is not SecurityIdentifier owner) {
-                return true;
+                return false;
             }
             return owner == CURRENT_USER_SID
                 || owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)
                 || owner.IsWellKnown(WellKnownSidType.LocalSystemSid)
                 || owner.IsWellKnown(WellKnownSidType.LocalServiceSid);
         } catch (Exception) {
-            return true;
+            return false; // fail closed: unknown ownership must not be trusted
         }
     }
 

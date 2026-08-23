@@ -273,4 +273,112 @@
   <data name="rdpSessionReminder" xml:space="preserve">
     <value>This looks like a remote desktop session. The Windows FIDO prompt is displayed on the RDP client, so install PasskeyPick on the client (this machine) for it to auto-select the security key.</value>
   </data>
+    <data name="trayGpgSettings" xml:space="preserve">
+    <value>GPG Settings</value>
+  </data>
+  <data name="trayGpgDiagnostics" xml:space="preserve">
+    <value>GPG Diagnostics</value>
+  </data>
+  <data name="gpgSettingsTitle" xml:space="preserve">
+    <value>GPG Settings</value>
+  </data>
+  <data name="gpgSettingsBridge" xml:space="preserve">
+    <value>GPG-agent forwarding</value>
+  </data>
+  <data name="gpgSettingsAgentAutostart" xml:space="preserve">
+    <value>GPG-agent daemon</value>
+  </data>
+  <data name="gpgSettingsPort" xml:space="preserve">
+    <value>GPG forwarding port</value>
+  </data>
+  <data name="gpgSettingsSshExample" xml:space="preserve">
+    <value>SSH config example</value>
+  </data>
+    <data name="gpgSettingsSave" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="gpgSettingsCancel" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="gpgSettingsStatus" xml:space="preserve">
+    <value>Running status</value>
+  </data>
+          <data name="gpgSettingsPortInUse" xml:space="preserve">
+    <value>Not running: port {0} is in use or unavailable</value>
+  </data>
+  <data name="gpgSettingsStateMismatch" xml:space="preserve">
+    <value>Enabled but not running - check status</value>
+  </data>
+  <data name="gpgSettingsGpg4winDetected" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="gpgSettingsGpg4winMissing" xml:space="preserve">
+    <value>Not found - install from https://gpg4win.org</value>
+  </data>
+  <data name="gpgDiagnosticsTitle" xml:space="preserve">
+    <value>GPG Diagnostics</value>
+  </data>
+  <data name="gpgDiagnosticsCopy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="gpgDiagnosticsRefresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="gpgDiagnosticsClose" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="gpgDiagnosticsLoading" xml:space="preserve">
+    <value>Collecting diagnostics…</value>
+  </data>
+  <data name="gpgAgentUnavailableTitle" xml:space="preserve">
+    <value>Gpg4win not found</value>
+  </data>
+  <data name="gpgAgentUnavailableBody" xml:space="preserve">
+    <value>The GPG features need Gpg4win — install it from https://gpg4win.org</value>
+  </data>
+  <data name="gpgBridgeStartFailedTitle" xml:space="preserve">
+    <value>GPG bridge failed to start</value>
+  </data>
+  <data name="gpgBridgeStartFailedBody" xml:space="preserve">
+    <value>Port {0} is in use or cannot be bound</value>
+  </data>
+  <data name="gpgBridgeEnabledTitle" xml:space="preserve">
+    <value>GPG forwarding enabled</value>
+  </data>
+  <data name="gpgBridgeEnabledBody" xml:space="preserve">
+    <value>Any process on this machine (including other accounts) can now sign as you through port {0}, equivalent to ssh -A. Only enable on a trusted, single-user machine.</value>
+  </data>
+  <data name="gpgAgentRestartedTitle" xml:space="preserve">
+    <value>gpg-agent restarted</value>
+  </data>
+  <data name="gpgAgentRestartedBody" xml:space="preserve">
+    <value>gpg-agent was unreachable and has been restarted</value>
+  </data>
+  <data name="gpgSettingsSwitches" xml:space="preserve">
+    <value>Features</value>
+  </data>
+  <data name="gpgSettingsBridgeWarning" xml:space="preserve">
+    <value>Once "GPG-agent forwarding" is enabled, any process on this machine (including other accounts) can sign through your gpg-agent as you — equivalent to ssh -A; do not enable on shared computers.</value>
+  </data>
+  <data name="gpgSettingsParams" xml:space="preserve">
+    <value>Forwarding parameters</value>
+  </data>
+  <data name="gpgSettingsStatusAgent" xml:space="preserve">
+    <value>GPG-agent status</value>
+  </data>
+  <data name="gpgSettingsStatusRunning" xml:space="preserve">
+    <value>running</value>
+  </data>
+  <data name="gpgSettingsStatusStopped" xml:space="preserve">
+    <value>stopped</value>
+  </data>
+  <data name="gpgSettingsStatusGpg4win" xml:space="preserve">
+    <value>Gpg4win</value>
+  </data>
+  <data name="pinDialogInputGroup" xml:space="preserve">
+    <value>Enter PIN</value>
+  </data>
+  <data name="pinDialogStatusGroup" xml:space="preserve">
+    <value>Cache status</value>
+  </data>
 </root>

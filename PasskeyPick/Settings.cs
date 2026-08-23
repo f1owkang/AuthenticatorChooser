@@ -31,6 +31,15 @@ internal static class Settings {
     public static bool pinClearOnSleep { get; set; }
     public static bool pinClearOnHibernate { get; set; }
 
+    /// <summary>Whether the gpg-agent TCP bridge (remote Git signing) is enabled.</summary>
+    public static bool gpgBridgeEnabled { get; set; }
+
+    /// <summary>Whether PasskeyPick starts and keeps the Gpg4win gpg-agent alive.</summary>
+    public static bool gpgAgentAutostartEnabled { get; set; }
+
+    /// <summary>Local port the gpg-agent TCP bridge listens on (loopback only).</summary>
+    public static int gpgBridgePort { get; set; } = 4321;
+
     /// <summary>UTC time of the last update check, so the GitHub API is hit at most once a day.</summary>
     public static DateTime? lastUpdateCheckUtc { get; set; }
 
@@ -44,6 +53,9 @@ internal static class Settings {
         public bool pinClearOnLock { get; init; }
         public bool pinClearOnSleep { get; init; }
         public bool pinClearOnHibernate { get; init; }
+        public bool gpgBridgeEnabled { get; init; }
+        public bool gpgAgentAutostartEnabled { get; init; }
+        public int gpgBridgePort { get; init; } = 4321;
         public DateTime? lastUpdateCheckUtc { get; init; }
     }
 
@@ -58,6 +70,9 @@ internal static class Settings {
                 pinClearOnLock        = dto.pinClearOnLock;
                 pinClearOnSleep       = dto.pinClearOnSleep;
                 pinClearOnHibernate   = dto.pinClearOnHibernate;
+                gpgBridgeEnabled         = dto.gpgBridgeEnabled;
+                gpgAgentAutostartEnabled = dto.gpgAgentAutostartEnabled;
+                gpgBridgePort            = dto.gpgBridgePort;
                 lastUpdateCheckUtc    = dto.lastUpdateCheckUtc;
             }
         } catch (Exception) {
@@ -77,6 +92,9 @@ internal static class Settings {
                 pinClearOnLock        = pinClearOnLock,
                 pinClearOnSleep       = pinClearOnSleep,
                 pinClearOnHibernate   = pinClearOnHibernate,
+                gpgBridgeEnabled         = gpgBridgeEnabled,
+                gpgAgentAutostartEnabled = gpgAgentAutostartEnabled,
+                gpgBridgePort            = gpgBridgePort,
                 lastUpdateCheckUtc    = lastUpdateCheckUtc
             }));
         } catch (Exception) {
