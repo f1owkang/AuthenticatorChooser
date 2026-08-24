@@ -1,8 +1,7 @@
-using ManagedWinapi.Windows;
+using PasskeyPick.WindowOpening;
 using System.Runtime.InteropServices;
 using System.Windows.Automation;
 using System.Windows.Input;
-using Unfucked;
 
 namespace PasskeyPick.Windows11;
 

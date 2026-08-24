@@ -64,17 +64,19 @@ internal static class WindowTrust {
         }
 
         string? path = getProcessPath(pid);
-        if (path is null) {
-            return false;
-        }
-
-        string? directory = Path.GetDirectoryName(path);
-        if (!string.Equals(directory, Environment.SystemDirectory, StringComparison.OrdinalIgnoreCase)
-            || !TRUSTED_PROCESSES.Contains(Path.GetFileName(path))) {
+        if (path is null || !isTrustedProcessPath(path)) {
             return false;
         }
 
         return isMicrosoftSigned(path);
+    }
+
+    /// <summary>Whether an executable path is directly under System32 and on the trusted-process allowlist. Pure
+    /// string logic, separated from the PID/signature checks so it can be unit-tested.</summary>
+    internal static bool isTrustedProcessPath(string path) {
+        string? directory = Path.GetDirectoryName(path);
+        return string.Equals(directory, Environment.SystemDirectory, StringComparison.OrdinalIgnoreCase)
+            && TRUSTED_PROCESSES.Contains(Path.GetFileName(path));
     }
 
     [DllImport("kernel32.dll", SetLastError = true)]

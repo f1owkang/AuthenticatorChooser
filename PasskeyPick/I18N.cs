@@ -2,7 +2,6 @@ using PasskeyPick.Resources;
 using System.Collections.Frozen;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using Unfucked;
 using Workshell.PE;
 using Workshell.PE.Resources;
 using Workshell.PE.Resources.Strings;

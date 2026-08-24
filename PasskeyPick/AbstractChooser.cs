@@ -1,4 +1,4 @@
-using ManagedWinapi.Windows;
+using PasskeyPick.WindowOpening;
 
 namespace PasskeyPick;
 

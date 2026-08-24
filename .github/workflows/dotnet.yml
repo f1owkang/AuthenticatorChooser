@@ -29,10 +29,13 @@ jobs:
     - name: Restore
       run: dotnet restore --locked-mode
 
+    # Unit + loopback integration tests for the security core (PIN cache, priority rules, socket parsing, bridge relay).
+    - name: Test
+      run: dotnet test ${{ env.ProjectName }}.Tests --configuration Release
+
     # framework-dependent single-file publish (tiny ~2 MB, like g-helper): csproj's PublishSingleFile conditional
     # group pins SelfContained=false, so only the app's managed code is bundled and the .NET Desktop Runtime is loaded
-    # from the system. mwinapi's native helper is embedded via IncludeNativeLibrariesForSelfExtract, so the publish
-    # is a single EXE.
+    # from the system. All libraries are pure managed code, so the publish is a single EXE.
     - name: Build
       run: dotnet build ${{ env.ProjectName }} --no-restore --runtime ${{ matrix.targetPlatform }} --configuration Release -p:PublishSingleFile=true
 

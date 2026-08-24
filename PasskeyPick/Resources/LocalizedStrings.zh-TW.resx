@@ -189,17 +189,20 @@
   <data name="trayTtlSubmenu" xml:space="preserve">
     <value>過期時間（TTL）</value>
   </data>
+  <data name="trayTtl30Sec" xml:space="preserve">
+    <value>30 秒</value>
+  </data>
+  <data name="trayTtl1Min" xml:space="preserve">
+    <value>1 分鐘</value>
+  </data>
+  <data name="trayTtl2Min" xml:space="preserve">
+    <value>2 分鐘</value>
+  </data>
   <data name="trayTtl5Min" xml:space="preserve">
     <value>5 分鐘</value>
   </data>
   <data name="trayTtl10Min" xml:space="preserve">
     <value>10 分鐘</value>
-  </data>
-  <data name="trayTtl30Min" xml:space="preserve">
-    <value>30 分鐘</value>
-  </data>
-  <data name="trayTtl1Hour" xml:space="preserve">
-    <value>1 小時</value>
   </data>
   <data name="trayTtlUntilExit" xml:space="preserve">
     <value>直到結束</value>
@@ -242,6 +245,9 @@
   </data>
   <data name="pinDialogMultiKey" xml:space="preserve">
     <value>偵測到多把安全金鑰。PIN 快取僅在單把金鑰時安全（快取的某把金鑰 PIN 可能被輸入到另一把金鑰而導致其被鎖死）。請移除多餘金鑰後重試。</value>
+  </data>
+  <data name="pinDialogKeyEnumFailed" xml:space="preserve">
+    <value>無法偵測已連接的安全金鑰數量。為安全起見不快取 PIN：若插有多把金鑰，快取的 PIN 可能被輸入到錯誤的金鑰而導致其被鎖死。</value>
   </data>
   <data name="pinDialogError" xml:space="preserve">
     <value>無法在記憶體中加密 PIN。</value>

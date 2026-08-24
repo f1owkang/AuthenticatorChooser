@@ -189,17 +189,20 @@
   <data name="trayTtlSubmenu" xml:space="preserve">
     <value>过期时间（TTL）</value>
   </data>
+  <data name="trayTtl30Sec" xml:space="preserve">
+    <value>30 秒</value>
+  </data>
+  <data name="trayTtl1Min" xml:space="preserve">
+    <value>1 分钟</value>
+  </data>
+  <data name="trayTtl2Min" xml:space="preserve">
+    <value>2 分钟</value>
+  </data>
   <data name="trayTtl5Min" xml:space="preserve">
     <value>5 分钟</value>
   </data>
   <data name="trayTtl10Min" xml:space="preserve">
     <value>10 分钟</value>
-  </data>
-  <data name="trayTtl30Min" xml:space="preserve">
-    <value>30 分钟</value>
-  </data>
-  <data name="trayTtl1Hour" xml:space="preserve">
-    <value>1 小时</value>
   </data>
   <data name="trayTtlUntilExit" xml:space="preserve">
     <value>直到退出</value>
@@ -242,6 +245,9 @@
   </data>
   <data name="pinDialogMultiKey" xml:space="preserve">
     <value>检测到多把安全密钥。PIN 缓存只在单把密钥时安全（缓存的一把密钥的 PIN 可能被输入到另一把密钥而导致其被锁死）。请移除多余密钥后重试。</value>
+  </data>
+  <data name="pinDialogKeyEnumFailed" xml:space="preserve">
+    <value>无法检测已连接的安全密钥数量。为安全起见不缓存 PIN：若插有多把密钥，缓存的 PIN 可能被输入到错误的密钥而导致其被锁死。</value>
   </data>
   <data name="pinDialogError" xml:space="preserve">
     <value>无法在内存中加密 PIN。</value>

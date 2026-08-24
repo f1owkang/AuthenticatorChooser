@@ -18,6 +18,11 @@ internal static class GpgBridge {
     private static TcpListener? listener;
     private static CancellationTokenSource? stopAccepting;
 
+    /// <summary>Cap on simultaneous relay connections, so a local process cannot exhaust handles/threads by opening
+    /// the loopback port in a loop (local DoS only; a rejected connector just retries or fails).</summary>
+    private const int MAX_CONCURRENT_CONNECTIONS = 16;
+    private static readonly SemaphoreSlim connectionSlots = new(MAX_CONCURRENT_CONNECTIONS, MAX_CONCURRENT_CONNECTIONS);
+
     public static bool isRunning => listener is not null;
 
     /// <summary>Last bind/start error (e.g. port already in use), for the settings-dialog status section.</summary>
@@ -25,9 +30,9 @@ internal static class GpgBridge {
 
     /// <summary>Connections that accept but whose client never speaks within this window are closed (idle probe / dead
     /// tunnel guard). It only applies until the client's first data is relayed, so a legitimate handshake or a slow
-    /// card touch / PIN prompt during signing is never killed.</summary>
-    private static readonly TimeSpan IDLE_TIMEOUT = TimeSpan.FromSeconds(30);
-    private static readonly long     IDLE_TIMEOUT_MILLIS = (long) IDLE_TIMEOUT.TotalMilliseconds;
+    /// card touch / PIN prompt during signing is never killed. Internal and mutable only so tests can shorten it.</summary>
+    internal static TimeSpan IDLE_TIMEOUT = TimeSpan.FromSeconds(30);
+    private static long idleTimeoutMillis => (long) IDLE_TIMEOUT.TotalMilliseconds;
 
     /// <summary>Starts listening on 127.0.0.1:<paramref name="port"/>. Idempotent: any existing bridge is stopped first.
     /// A tray-balloon warning is shown when the bridge transitions from stopped to running (enable at runtime, or the
@@ -84,7 +89,18 @@ internal static class GpgBridge {
                 await Task.Delay(200, CancellationToken.None);
                 continue;
             }
-            _ = Task.Run(() => relay(client), CancellationToken.None);
+            if (!connectionSlots.Wait(0)) {
+                LOGGER.Warn("gpg-agent TCP bridge rejecting connection: {max} connections already active", MAX_CONCURRENT_CONNECTIONS);
+                client.Dispose();
+                continue;
+            }
+            _ = Task.Run(async () => {
+                try {
+                    await relay(client);
+                } finally {
+                    connectionSlots.Release();
+                }
+            }, CancellationToken.None);
         }
     }
 
@@ -165,7 +181,7 @@ internal static class GpgBridge {
 
     /// <summary>Extracts the leading whitespace-delimited token (the Assuan instruction, e.g. SIGN or HAVEKEY) from a
     /// chunk, capped at 32 bytes.</summary>
-    private static string extractInstruction(byte[] chunk, int length) {
+    internal static string extractInstruction(byte[] chunk, int length) {
         int tokenLength = 0;
         while (tokenLength < length && tokenLength < 32) {
             byte b = chunk[tokenLength];
@@ -188,7 +204,7 @@ internal static class GpgBridge {
                 if (Volatile.Read(ref counters.established)) {
                     return; // live session; the agent/peer will close it when the operation finishes
                 }
-                if (Environment.TickCount64 - Volatile.Read(ref counters.lastActivityTicks) >= IDLE_TIMEOUT_MILLIS) {
+                if (Environment.TickCount64 - Volatile.Read(ref counters.lastActivityTicks) >= idleTimeoutMillis) {
                     LOGGER.Warn("gpg-agent bridge closed connection from {remote} after {seconds} s idle before the client sent anything",
                         remote, (int) IDLE_TIMEOUT.TotalSeconds);
                     cts.Cancel();
@@ -209,7 +225,13 @@ internal static class GpgBridge {
         public long lastActivityTicks = Environment.TickCount64; // written/read via Volatile
     }
 
+    /// <summary>Test seam: when set, overrides the gpg-agent endpoint lookup so relay tests need no real gpg-agent.</summary>
+    internal static Func<(int port, byte[] nonce)?>? endpointOverride;
+
     private static (int port, byte[] nonce)? getSocketEndpoint() {
+        if (endpointOverride is { } provider) {
+            return provider();
+        }
         string? socketPath = GpgTools.getExtraSocketPath();
         if (socketPath is null || !File.Exists(socketPath)) {
             // #7: start the agent on demand, then re-read.

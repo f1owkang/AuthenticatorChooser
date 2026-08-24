@@ -1,5 +1,4 @@
 using System.Windows.Automation;
-using Unfucked;
 
 namespace PasskeyPick.Windows11;
 

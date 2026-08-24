@@ -189,17 +189,20 @@
   <data name="trayTtlSubmenu" xml:space="preserve">
     <value>Expiration (TTL)</value>
   </data>
+  <data name="trayTtl30Sec" xml:space="preserve">
+    <value>30 seconds</value>
+  </data>
+  <data name="trayTtl1Min" xml:space="preserve">
+    <value>1 minute</value>
+  </data>
+  <data name="trayTtl2Min" xml:space="preserve">
+    <value>2 minutes</value>
+  </data>
   <data name="trayTtl5Min" xml:space="preserve">
     <value>5 minutes</value>
   </data>
   <data name="trayTtl10Min" xml:space="preserve">
     <value>10 minutes</value>
-  </data>
-  <data name="trayTtl30Min" xml:space="preserve">
-    <value>30 minutes</value>
-  </data>
-  <data name="trayTtl1Hour" xml:space="preserve">
-    <value>1 hour</value>
   </data>
   <data name="trayTtlUntilExit" xml:space="preserve">
     <value>Until exit</value>
@@ -242,6 +245,9 @@
   </data>
   <data name="pinDialogMultiKey" xml:space="preserve">
     <value>More than one security key is attached. The PIN cache only works safely with a single key (a cached PIN could be entered into the wrong key and lock it out). Please remove the extra keys and try again.</value>
+  </data>
+  <data name="pinDialogKeyEnumFailed" xml:space="preserve">
+    <value>Could not count the attached security keys. As a precaution the PIN was not cached, because with multiple keys a cached PIN could be entered into the wrong key and lock it out.</value>
   </data>
   <data name="pinDialogError" xml:space="preserve">
     <value>Could not encrypt the PIN in memory.</value>

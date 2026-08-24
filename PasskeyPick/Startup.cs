@@ -21,6 +21,7 @@ public class Startup {
     private static readonly WindowsIdentity          CURRENT_USER    = WindowsIdentity.GetCurrent();
 
     private static Logger? logger;
+    private static System.Threading.Timer? debuggerWatchdog;
 
     // #15
     [Option("--skip-all-non-security-key-options", CommandOptionType.NoValue)]
@@ -85,7 +86,7 @@ public class Startup {
                 Settings.gpgBridgePort = Math.Clamp(bridgePort, 1, 65535);
             }
             if (pinCacheTtlSeconds is { } ttlSeconds) {
-                Settings.pinCacheTtlSeconds = ttlSeconds;
+                Settings.pinCacheTtlSeconds = Settings.normalizeTtl(ttlSeconds);
             }
             Settings.pinClearOnLock      |= pinClearOnLock;
             Settings.pinClearOnSleep     |= pinClearOnSleep;
@@ -131,6 +132,9 @@ public class Startup {
                 SystemEvents.SessionEnding += onWindowsLogoff;
                 SystemEvents.SessionSwitch += onSessionSwitch;
                 SystemEvents.PowerModeChanged += onPowerModeChanged;
+                // Forget the cached PIN within seconds if a debugger attaches between dialogs: hasCached() clears it
+                // and logs once on the transition, and is a cheap no-op while the cache is empty.
+                debuggerWatchdog = new System.Threading.Timer(onDebuggerWatchdogTick, null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(3));
                 // Last-resort cleanup so a cached PIN is zeroed on any orderly (or most abnormal) process exit.
                 AppDomain.CurrentDomain.ProcessExit += (_, _) => PinCache.clear();
 
@@ -206,14 +210,14 @@ public class Startup {
                 Prompts you once (in a dialog box, never on a command line) for the PIN of your USB security key, then caches it in memory only (never written to disk) so the program can auto-fill the Windows Security PIN prompt instead of you typing it every time, for --pin-cache-ttl seconds. Because the PIN is only held in memory, you must run --set-pin again after every restart. The cache only works with a single attached security key; if more than one key is present, --set-pin refuses to store the PIN to avoid locking out the wrong key. The same dialog also lets you clear the cached PIN. Without a cached PIN, the program never touches the PIN field.
                 
             {processFilename} --pin-cache-ttl=$seconds
-                How long (in seconds) a PIN cached with --set-pin stays valid before it expires and you have to cache it again, mirroring gpg-agent's default-cache-ttl. Defaults to 600 (10 minutes). Use 0 to keep the PIN until the program restarts, i.e. it never expires while the program is running.
+                How long (in seconds) a PIN cached with --set-pin stays valid before it expires and you have to cache it again, mirroring gpg-agent's default-cache-ttl. Defaults to 120 (2 minutes) and is capped at 600 (10 minutes); larger values are clamped. Use 0 to keep the PIN until the program restarts, i.e. it never expires while the program is running.
                 
             {processFilename} --pin-clear-on-lock
-                Forgets the cached security key PIN whenever Windows is locked, so it has to be re-entered after you unlock.
+                Forgets the cached security key PIN whenever Windows is locked, so it has to be re-entered after you unlock. This is on by default; the flag is only needed to re-enable it from the command line.
                 
             {processFilename} --pin-clear-on-sleep
             {processFilename} --pin-clear-on-hibernate
-                Forgets the cached security key PIN when Windows suspends. Sleep and hibernation both report the same system suspend event, so these two options behave identically.
+                Forgets the cached security key PIN when Windows suspends. On by default, like --pin-clear-on-lock. Sleep and hibernation both report the same system suspend event, so these two options behave identically.
                 
             {processFilename} --log[=$filename]
                 Runs this program in the background like the first example, and logs debug messages to a text file. If you don't specify $filename, it goes to {Path.Combine(Environment.GetEnvironmentVariable("TEMP") ?? "%TEMP%", PROGRAM_NAME + ".log")}.
@@ -234,6 +238,10 @@ public class Startup {
         SystemEvents.SessionEnding -= onWindowsLogoff;
         requestExit();
     }
+
+    /// <summary>Background debugger patrol: with a cached PIN, <see cref="PinCache.hasCached"/> forgets it (and logs
+    /// once) the moment a debugger attaches; with an empty cache it returns immediately without any debugger check.</summary>
+    private static void onDebuggerWatchdogTick(object? state) => PinCache.hasCached();
 
     private static void onSessionSwitch(object sender, SessionSwitchEventArgs args) {
         if (args.Reason == SessionSwitchReason.SessionLock && PinCache.clearOnLockEnabled) {

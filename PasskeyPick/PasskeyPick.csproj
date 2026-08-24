@@ -8,7 +8,7 @@
         <UseWindowsForms>true</UseWindowsForms>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.7.2</Version>
+        <Version>0.8.0</Version>
         <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
         <Authors>Ben Hutchison; f1owkang</Authors>
         <Copyright>© 2026 Ben Hutchison; f1owkang</Copyright>
@@ -26,13 +26,12 @@
 
     <ItemGroup>
         <EmbeddedResource Include="YubiKey.ico" />
+        <InternalsVisibleTo Include="PasskeyPick.Tests" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="5.1.0" />
-        <PackageReference Include="mwinapi" Version="0.3.0.6" />
         <PackageReference Include="TaskScheduler" Version="2.12.2" />
-        <PackageReference Include="Unfucked.Windows" Version="0.0.1-beta.11" />
         <PackageReference Include="Workshell.PE.Resources" Version="4.0.0.147" />
     </ItemGroup>
 
@@ -82,11 +81,9 @@
     </Target>
 
     <!-- Framework-dependent sizing: the single-file EXE carries only the app's managed code (~2 MB) and loads the
-         .NET Desktop Runtime from the system, exactly like g-helper. Tiny, but the target machine needs the runtime.
-         IncludeNativeLibrariesForSelfExtract bundles mwinapi's 3 KB native helper so the publish is a single file. -->
+         .NET Desktop Runtime from the system, exactly like g-helper. Tiny, but the target machine needs the runtime. -->
     <PropertyGroup Condition="'$(PublishSingleFile)' == 'true'">
         <SelfContained>false</SelfContained>
-        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' or '$(Configuration)' != 'Debug'">

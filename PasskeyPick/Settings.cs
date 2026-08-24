@@ -24,12 +24,24 @@ internal static class Settings {
     /// <summary>The auto-submit PIN length, or <see langword="null"/> to not auto-submit PIN prompts.</summary>
     public static int? autoSubmitPinLength { get; set; }
 
-    /// <summary>Cache TTL in seconds, where 0 keeps the PIN until the program exits.</summary>
-    public static int pinCacheTtlSeconds { get; set; } = 600;
+    /// <summary>Hard ceiling for the PIN cache TTL: gpg-agent's <c>default-cache-ttl</c> (600 s). Larger configured
+    /// values are normalized down to this on load. 0 stays valid and keeps the PIN until the program exits.</summary>
+    public const int MAX_TTL_SECONDS = 600;
 
-    public static bool pinClearOnLock { get; set; }
-    public static bool pinClearOnSleep { get; set; }
-    public static bool pinClearOnHibernate { get; set; }
+    /// <summary>Default PIN cache TTL for a fresh install: two minutes, so a dumped or attached process has a window
+    /// of seconds, not minutes.</summary>
+    public const int DEFAULT_TTL_SECONDS = 120;
+
+    /// <summary>Clamps a configured TTL into [0, <see cref="MAX_TTL_SECONDS"/>], where 0 keeps the PIN until the
+    /// program exits; negatives become the ceiling.</summary>
+    public static int normalizeTtl(int seconds) => seconds < 0 || seconds > MAX_TTL_SECONDS ? MAX_TTL_SECONDS : seconds;
+
+    /// <summary>Cache TTL in seconds, in [0, <see cref="MAX_TTL_SECONDS"/>], where 0 keeps the PIN until the program exits.</summary>
+    public static int pinCacheTtlSeconds { get; set; } = DEFAULT_TTL_SECONDS;
+
+    public static bool pinClearOnLock { get; set; } = true;
+    public static bool pinClearOnSleep { get; set; } = true;
+    public static bool pinClearOnHibernate { get; set; } = true;
 
     /// <summary>Whether the gpg-agent TCP bridge (remote Git signing) is enabled.</summary>
     public static bool gpgBridgeEnabled { get; set; }
@@ -49,10 +61,10 @@ internal static class Settings {
         public bool autoSelectEnabled { get; init; } = true;
         public string? preferredAuthenticator { get; init; }
         public int? autoSubmitPinLength { get; init; }
-        public int pinCacheTtlSeconds { get; init; } = 600;
-        public bool pinClearOnLock { get; init; }
-        public bool pinClearOnSleep { get; init; }
-        public bool pinClearOnHibernate { get; init; }
+        public int? pinCacheTtlSeconds { get; init; }
+        public bool? pinClearOnLock { get; init; }
+        public bool? pinClearOnSleep { get; init; }
+        public bool? pinClearOnHibernate { get; init; }
         public bool gpgBridgeEnabled { get; init; }
         public bool gpgAgentAutostartEnabled { get; init; }
         public int gpgBridgePort { get; init; } = 4321;
@@ -66,10 +78,13 @@ internal static class Settings {
                 autoSelectEnabled     = dto.autoSelectEnabled;
                 preferredAuthenticator = dto.preferredAuthenticator;
                 autoSubmitPinLength   = dto.autoSubmitPinLength;
-                pinCacheTtlSeconds    = dto.pinCacheTtlSeconds;
-                pinClearOnLock        = dto.pinClearOnLock;
-                pinClearOnSleep       = dto.pinClearOnSleep;
-                pinClearOnHibernate   = dto.pinClearOnHibernate;
+                // Missing fields mean the setting was never chosen (fresh install): apply the strict defaults.
+                // Present values are the user's explicit choice and are kept — except the TTL, which is still clamped
+                // to the hard ceiling (0, "until the program exits", remains valid).
+                pinCacheTtlSeconds    = normalizeTtl(dto.pinCacheTtlSeconds ?? DEFAULT_TTL_SECONDS);
+                pinClearOnLock        = dto.pinClearOnLock ?? true;
+                pinClearOnSleep       = dto.pinClearOnSleep ?? true;
+                pinClearOnHibernate   = dto.pinClearOnHibernate ?? true;
                 gpgBridgeEnabled         = dto.gpgBridgeEnabled;
                 gpgAgentAutostartEnabled = dto.gpgAgentAutostartEnabled;
                 // #10: clamp the port read from disk, so a tampered settings.json cannot inject an out-of-range value.

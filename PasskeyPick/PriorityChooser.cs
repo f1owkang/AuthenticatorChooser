@@ -19,7 +19,9 @@ namespace PasskeyPick;
 ///   <item><c>Pair new phone</c> — pairing a new Bluetooth phone</item>
 ///   <item><c>Use existing phone</c> — an already-paired Bluetooth phone</item>
 /// </list>
-/// Every other key is matched case-insensitively against the option text as it appears in the dialog.
+    /// Every other key is matched exactly (case-insensitively) against the option text as it appears in the dialog;
+    /// a key that is merely a substring of an option's name does not match, so <c>USB</c> cannot accidentally hit an
+    /// option whose name only contains those letters.
 /// If no rules are configured, the default behavior is to prefer the USB security key, as before.
 /// </para>
 /// </summary>
@@ -71,6 +73,10 @@ public static class PriorityChooser {
                 }
 
                 string name     = match.Groups["name"].Value.Trim();
+                // A quoted name keeps any '#' inside it (see stripComment); the quotes themselves are not part of it.
+                if (name.Length >= 2 && name.StartsWith('"') && name.EndsWith('"')) {
+                    name = name[1..^1];
+                }
                 int    priority = int.Parse(match.Groups["priority"].Value, NumberStyles.None, CultureInfo.InvariantCulture);
                 if (name.Length > 0) {
                     result[name] = priority;
@@ -83,9 +89,18 @@ public static class PriorityChooser {
         }
     }
 
+    /// <summary>Removes an inline comment: a '#' starts a comment unless it sits inside a double-quoted name.</summary>
     private static string stripComment(string line) {
-        int hashIndex = line.IndexOf('#');
-        return hashIndex >= 0 ? line[..hashIndex] : line;
+        bool inQuotes = false;
+        for (int i = 0; i < line.Length; i++) {
+            char c = line[i];
+            if (c == '"') {
+                inQuotes = !inQuotes;
+            } else if (c == '#' && !inQuotes) {
+                return line[..i];
+            }
+        }
+        return line;
     }
 
     /// <summary>
@@ -120,12 +135,11 @@ public static class PriorityChooser {
         return best;
     }
 
-    private static int getPriority(string choiceName, IReadOnlyDictionary<string, int> rules, IEnumerable<string> securityKeyStrings, IEnumerable<string> smartphoneStrings) {
-        // 1. Exact or substring match against a configured named rule wins first
-        foreach ((string ruleName, int rulePriority) in rules) {
-            if (ruleName.Equals(choiceName, StringComparison.OrdinalIgnoreCase) || choiceName.Contains(ruleName, StringComparison.OrdinalIgnoreCase)) {
-                return rulePriority;
-            }
+    internal static int getPriority(string choiceName, IReadOnlyDictionary<string, int> rules, IEnumerable<string> securityKeyStrings, IEnumerable<string> smartphoneStrings) {
+        // 1. An exact (case-insensitive) match against a configured named rule wins first. Substring matching is
+        //    deliberately not done: 'USB = 100' must not hit an option whose name merely contains those letters.
+        if (rules.TryGetValue(choiceName, out int configuredPriority)) {
+            return configuredPriority;
         }
 
         // 2. Fall back to the built-in defaults for the known special options

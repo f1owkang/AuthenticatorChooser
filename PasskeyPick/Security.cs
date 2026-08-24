@@ -6,8 +6,9 @@ namespace PasskeyPick;
 
 /// <summary>
 /// Deployment-environment hardening for two findings: DLL search-order hijacking (the executable directory must not be
-/// writable by unprivileged users, or a malicious copy of mwinapi's native helper could be loaded) and priority.txt
-/// poisoning (the config file must be owned by the current user or a local administrator, or it may have been planted).
+/// writable by unprivileged users, or a malicious library could be placed next to the executable and loaded) and
+/// priority.txt poisoning (the config file must be owned by the current user or a local administrator, or it may have
+/// been planted).
 /// </summary>
 internal static class Security {
 

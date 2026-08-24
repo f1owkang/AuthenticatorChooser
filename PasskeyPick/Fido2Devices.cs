@@ -67,18 +67,23 @@ internal static class Fido2Devices {
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern uint GetRawInputDeviceInfoW(IntPtr hDevice, uint uiCommand, IntPtr pData, ref uint pcbSize);
 
-    /// <summary>Number of attached FIDO2 security keys. Returns 0 on any failure, so callers can proceed conservatively.</summary>
-    public static int countFido2() {
+    /// <summary>Number of attached FIDO2 security keys, or <see langword="null"/> when enumeration failed. Callers
+    /// protecting against multi-key mix-ups must treat <see langword="null"/> as "unknown, assume the worst" rather
+    /// than as 0.</summary>
+    public static int? countFido2() {
         uint deviceCount = 0;
         uint itemSize    = (uint) Marshal.SizeOf<RAWINPUTDEVICELIST>();
-        if (GetRawInputDeviceList(IntPtr.Zero, ref deviceCount, itemSize) == uint.MaxValue || deviceCount == 0) {
+        if (GetRawInputDeviceList(IntPtr.Zero, ref deviceCount, itemSize) == uint.MaxValue) {
+            return null;
+        }
+        if (deviceCount == 0) {
             return 0;
         }
 
         IntPtr list = Marshal.AllocHGlobal((int) (deviceCount * itemSize));
         try {
             if (GetRawInputDeviceList(list, ref deviceCount, itemSize) == uint.MaxValue) {
-                return 0;
+                return null;
             }
             int fido = 0;
             for (uint i = 0; i < deviceCount; i++) {

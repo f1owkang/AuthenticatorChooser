@@ -1,6 +1,5 @@
 using PasskeyPick.WindowOpening;
 using PasskeyPick.Windows11;
-using ManagedWinapi.Windows;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;

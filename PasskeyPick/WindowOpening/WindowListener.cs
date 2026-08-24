@@ -1,5 +1,3 @@
-using ManagedWinapi.Windows;
-
 namespace PasskeyPick.WindowOpening;
 
 public interface WindowListener: IDisposable {

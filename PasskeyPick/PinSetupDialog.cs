@@ -30,8 +30,14 @@ internal sealed class PinSetupDialog: BaseDialog {
                 MessageBox.Show(UiLanguage.get("pinDialogMismatch"), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            // Caching one PIN to auto-fill several keys could lock them out after repeated wrong attempts.
-            if (Fido2Devices.countFido2() > 1) {
+            // Caching one PIN to auto-fill several keys could lock them out after repeated wrong attempts. An
+            // enumeration failure is indistinguishable from "zero keys", so fail closed and refuse to cache.
+            int? attachedKeys = Fido2Devices.countFido2();
+            if (attachedKeys is null) {
+                MessageBox.Show(UiLanguage.get("pinDialogKeyEnumFailed"), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (attachedKeys > 1) {
                 MessageBox.Show(UiLanguage.get("pinDialogMultiKey"), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }

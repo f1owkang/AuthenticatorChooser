@@ -1,5 +1,4 @@
 using System.Windows.Automation;
-using Unfucked;
 
 namespace PasskeyPick.Windows11;
 
@@ -81,23 +80,36 @@ public abstract class Win11Strategy(ChooserOptions options): PromptStrategy {
     /// <summary>
     /// If a PIN was cached with <c>--set-pin</c> and is still within its cache TTL, fills it into the Windows Security
     /// PIN prompt and submits the dialog, so the user doesn't have to type the PIN on every assertion (modeled on
-    /// gpg-agent's passphrase cache). Returns <see langword="true"/> when the dialog was auto-filled and submitted.
+    /// gpg-agent's passphrase cache). The PIN travels as an unmanaged <c>BSTR</c> into the native
+    /// <c>IUIAutomationValuePattern::SetValue</c> (see <see cref="NativeUia"/>), never as a managed string. Returns
+    /// <see langword="true"/> when the dialog was auto-filled and submitted.
     /// <paramref name="pinField"/> may already be known (e.g. from <see cref="findPinField"/>); otherwise it is looked
     /// up under <paramref name="outerScrollViewer"/>.
     /// </summary>
     protected async Task<bool> tryAutofillPin(AutomationElement fidoEl, AutomationElement? pinField, AutomationElement? outerScrollViewer = null) {
-        if (PinCache.tryGetCached() is not { } pin) {
-            return false;
-        }
         pinField ??= outerScrollViewer is null ? null : await findPinField(outerScrollViewer, Startup.EXITING);
-        if (pinField is null) {
+        if (pinField is null || !PinCache.hasCached()) {
             return false;
         }
 
+        bool filled;
         try {
             pinField.SetFocus();
-            ((ValuePattern) pinField.GetCurrentPattern(ValuePattern.Pattern)).SetValue(pin);
-            LOGGER.Info("Auto-filled cached security key PIN {0:N3} sec after dialog appeared", options.overallStopwatch.Elapsed.TotalSeconds);
+            IntPtr windowHandle = new(fidoEl.Current.NativeWindowHandle);
+            if (windowHandle == IntPtr.Zero) {
+                LOGGER.Warn("The FIDO dialog has no native window handle, cannot auto-fill the PIN; please type the PIN manually");
+                return false;
+            }
+            filled = PinCache.tryUseCachedPin(bstr => {
+                // Re-verify trust at fill time, not just at detection time: findPinField may have waited up to 3
+                // minutes, during which the real dialog could have closed and its HWND been reused by an untrusted
+                // process faking the "Credential Dialog Xaml Host" class to steal the PIN (TOCTOU).
+                if (!WindowTrust.isTrustedSystemProcess(windowHandle)) {
+                    LOGGER.Warn("The FIDO dialog window is no longer owned by a trusted system process; refusing to fill the cached PIN");
+                    return false;
+                }
+                return NativeUia.setPasswordValue(windowHandle, bstr);
+            });
         } catch (Exception e) when (e is not OutOfMemoryException) {
             // SendKeys is a global keyboard-injection primitive that does not verify which window has focus, so it is
             // never a safe fallback: the PIN could be typed into whatever window happens to be focused (e.g. a browser
@@ -105,6 +117,10 @@ public abstract class Win11Strategy(ChooserOptions options): PromptStrategy {
             LOGGER.Warn("UIA SetValue for the PIN field failed ({message}), skipping auto-fill; please type the PIN manually", e.Message);
             return false;
         }
+        if (!filled) {
+            return false;
+        }
+        LOGGER.Info("Auto-filled cached security key PIN {0:N3} sec after dialog appeared", options.overallStopwatch.Elapsed.TotalSeconds);
 
         if (fidoEl.FindFirst(TreeScope.Children, NEXT_BUTTON_CONDITION) is { } okButton) {
             ((InvokePattern) okButton.GetCurrentPattern(InvokePattern.Pattern)).Invoke();

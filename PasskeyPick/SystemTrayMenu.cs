@@ -14,13 +14,15 @@ public sealed class SystemTrayMenu {
     private readonly List<ToolStripMenuItem> languageOptions = [];
     private readonly List<ToolStripMenuItem> ttlOptions = [];
 
-    /// <summary>TTL presets offered in the "Expiration (TTL)" submenu; 0 means "until the program exits".</summary>
+    /// <summary>TTL presets offered in the "Expiration (TTL)" submenu; 0 means "until the program exits". The maximum
+    /// is capped at <see cref="Settings.MAX_TTL_SECONDS"/>.</summary>
     private static readonly (int seconds, string resxKey)[] TTL_PRESETS = [
-        (300,  "trayTtl5Min"),
-        (600,  "trayTtl10Min"),
-        (1800, "trayTtl30Min"),
-        (3600, "trayTtl1Hour"),
-        (0,    "trayTtlUntilExit")
+        (30,  "trayTtl30Sec"),
+        (60,  "trayTtl1Min"),
+        (120, "trayTtl2Min"),
+        (300, "trayTtl5Min"),
+        (600, "trayTtl10Min"),
+        (0,   "trayTtlUntilExit")
     ];
 
     // Checkable items whose check state is refreshed every time the menu opens (PIN cache TTL, autostart, ...).
