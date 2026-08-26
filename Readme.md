@@ -1,10 +1,24 @@
-<img src="PasskeyPick/YubiKey.ico" height="24" alt="YubiKey 5 NFC USB-A" /> PasskeyPick
-===
+<div align="center">
 
-[![Release](https://img.shields.io/github/v/release/f1owkang/PasskeyPick?logo=github)](https://github.com/f1owkang/PasskeyPick/releases/latest) [![Build status](https://img.shields.io/github/actions/workflow/status/f1owkang/PasskeyPick/dotnet.yml?logo=github)](https://github.com/f1owkang/PasskeyPick/actions/workflows/dotnet.yml) [![Download count](https://img.shields.io/github/downloads/f1owkang/PasskeyPick/total?logo=github)](https://github.com/f1owkang/PasskeyPick/releases)
+<img src="PasskeyPick/YubiKey.ico" width="88" alt="YubiKey 5 NFC USB-A" />
 
-*驻留系统托盘的后台程序：自动跳过 Windows FIDO/WebAuthn 弹窗中的「配对手机」步骤，直接选择「USB 安全密钥」。*
+# 🔑 PasskeyPick
+
+**驻留系统托盘的后台程序：自动跳过 Windows FIDO/WebAuthn 弹窗中的「配对手机」步骤，直接选择「USB 安全密钥」。**
+
 *A background program with a system tray icon that skips the phone pairing step in Windows FIDO/WebAuthn prompts and chooses the USB security key.*
+
+[![Release](https://img.shields.io/github/v/release/f1owkang/PasskeyPick?style=flat-square&label=Release&color=blue)](https://github.com/f1owkang/PasskeyPick/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/f1owkang/PasskeyPick/total?style=flat-square&label=Downloads&color=green)](https://github.com/f1owkang/PasskeyPick/releases)
+[![C#](https://img.shields.io/badge/C%23-.NET_10-512bd4?style=flat-square&logo=csharp&logoColor=white)](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+[![Platform](https://img.shields.io/badge/Platform-Windows_11-0078d4?style=flat-square&logo=windows11&logoColor=white)](#系统要求--requirements)
+[![License](https://img.shields.io/github/license/f1owkang/PasskeyPick?style=flat-square&label=License&color=orange)](License.txt)
+
+[问题与方案](#问题与方案--problem--solution) · [系统要求](#系统要求--requirements) · [安装](#安装--installation) · [安全](#安全--security) · [构建](#构建--building) · [相关](#相关--related)
+
+</div>
+
+---
 
 **亮点 / Highlights**
 
@@ -12,17 +26,6 @@
 - **可选 PIN 缓存与自动填写**——内存加密、TTL 过期、锁屏失效、调试器检测 / optional in-memory-encrypted PIN cache with auto-fill, TTL, lock-screen expiry and debugger detection
 - **托盘 GUI 集中配置**——首选验证方法、语言、开机自启、GPG 转发 / tray GUI for preferred authenticator, language, autostart and GPG forwarding
 - **GPG 桥**——通过 SSH `RemoteForward` 在远程机器上用本地 YubiKey 签名 / sign on remote machines with your local YubiKey over SSH `RemoteForward`
-
-<!-- MarkdownTOC autolink="true" bracket="round" autoanchor="false" levels="1,2" -->
-
-- [问题与方案 / Problem & Solution](#问题与方案--problem--solution)
-- [系统要求 / Requirements](#系统要求--requirements)
-- [安装 / Installation](#安装--installation)
-- [安全 / Security](#安全--security)
-- [构建 / Building](#构建--building)
-- [相关 / Related](#相关--related)
-
-<!-- /MarkdownTOC -->
 
 ## 问题与方案 / Problem & Solution
 
@@ -97,6 +100,7 @@ RemoteForward <远程 socket> 127.0.0.1:<端口>
 
 远程提交即由本地 YubiKey 托管的 gpg-agent 签名，GitHub 显示 **Verified** 徽标。PasskeyPick 以管理员权限运行时，守护以**中完整性**启动 gpg-agent（经受限计划任务），普通终端也能连接 `\\.\pipe\openssh-ssh-agent` 做 SSH 卡认证；代价是同用户的中完整性进程也能访问该代理——固有取舍。
 
+> [!WARNING]
 > **安全说明（重要）**：桥只监听回环地址且默认关闭。但一旦启用，本机**任何进程**（包括其他 Windows 用户账户）都能通过它访问你的 gpg-agent 并代你签名/解密——**签名并不总是要求 PIN 确认**。这与 `ssh -A` 风险同类且暴露面更大。仅在可信的单用户机器上启用。
 
 高级：`--gpg-bridge-port=$port` 覆盖转发端口（推荐在 GUI 中配置）。
@@ -105,6 +109,7 @@ RemoteForward <远程 socket> 127.0.0.1:<端口>
 
 **Using your YubiKey over SSH**: add `RemoteForward <remote socket> 127.0.0.1:<port>` to the remote `~/.ssh/config` (`<remote socket>` from `gpgconf --list-dir agent-extra-socket` there, `<port>` matching the forwarding port). Remote commits are then signed by your local YubiKey-backed gpg-agent and show a **Verified** badge. When elevated, the daemon starts gpg-agent at **medium integrity** (via a limited scheduled task) so normal terminals can reach `\\.\pipe\openssh-ssh-agent`; the trade-off is that same-user medium-integrity processes can also reach the agent — inherent to this feature.
 
+> [!WARNING]
 > **Security note (important)**: the bridge listens on loopback only and is off by default. But once enabled, **any local process** (including other Windows user accounts) can sign or decrypt through your gpg-agent — and **signing does not always require a PIN prompt**. Same class of risk as `ssh -A`, wider exposure. Enable only on a trusted, single-user machine.
 
 Advanced: `--gpg-bridge-port=$port` overrides the port (the GUI is the recommended path).
@@ -129,15 +134,17 @@ Advanced: `--gpg-bridge-port=$port` overrides the port (the GUI is the recommend
 
 ## 安全 / Security
 
-**中文**：本程序必须**始终以管理员权限运行**，才能与更高完整性级别的 `CredentialUIBroker.exe` FIDO 弹窗交互（Windows UIPI 的要求，普通权限无法工作）。因此请部署到**受保护目录**——低权限用户可写的目录会暴露 DLL 搜索顺序劫持与 `priority.txt` 篡改风险（启动时会检查并记入日志；属主不是本人或本地管理员的 `priority.txt` 会被忽略）。程序只与**微软签名、位于 System32 的系统进程**（`CredentialUIBroker.exe`、`Consent.exe` 等）持有的 FIDO 弹窗交互，且**填充 PIN 前会再次复核窗口属主**，其他进程无法伪造弹窗窃取缓存的安全密钥 PIN。
-
-**English**: This program must **always run as administrator** to interact with the FIDO dialogs hosted by `CredentialUIBroker.exe` at a higher integrity level (required by Windows UIPI; it cannot work unelevated). Install it in a **protected directory** — a directory writable by lower-privileged users exposes DLL search-order hijacking and `priority.txt` tampering (checked at startup and logged; a `priority.txt` not owned by you or a local administrator is ignored). The program only interacts with FIDO dialogs owned by **Microsoft-signed system processes in System32** (`CredentialUIBroker.exe`, `Consent.exe`, etc.) and **re-verifies the window owner immediately before filling a PIN**, so other processes cannot spoof a prompt to steal the cached security key PIN.
+> [!IMPORTANT]
+> **中文**：本程序必须**始终以管理员权限运行**，才能与更高完整性级别的 `CredentialUIBroker.exe` FIDO 弹窗交互（Windows UIPI 的要求，普通权限无法工作）。因此请部署到**受保护目录**——低权限用户可写的目录会暴露 DLL 搜索顺序劫持与 `priority.txt` 篡改风险（启动时会检查并记入日志；属主不是本人或本地管理员的 `priority.txt` 会被忽略）。程序只与**微软签名、位于 System32 的系统进程**（`CredentialUIBroker.exe`、`Consent.exe` 等）持有的 FIDO 弹窗交互，且**填充 PIN 前会再次复核窗口属主**，其他进程无法伪造弹窗窃取缓存的安全密钥 PIN。
+>
+> **English**: This program must **always run as administrator** to interact with the FIDO dialogs hosted by `CredentialUIBroker.exe` at a higher integrity level (required by Windows UIPI; it cannot work unelevated). Install it in a **protected directory** — a directory writable by lower-privileged users exposes DLL search-order hijacking and `priority.txt` tampering (checked at startup and logged; a `priority.txt` not owned by you or a local administrator is ignored). The program only interacts with FIDO dialogs owned by **Microsoft-signed system processes in System32** (`CredentialUIBroker.exe`, `Consent.exe`, etc.) and **re-verifies the window owner immediately before filling a PIN**, so other processes cannot spoof a prompt to steal the cached security key PIN.
 
 ### 免责声明 / Disclaimer
 
-**中文**：本程序（包括 PIN 缓存、自动填 PIN、自动提交 PIN）按「现状」提供，不附带任何保证。**缓存 PIN 存在固有风险**：即使 PIN 仅加密保存在内存、从不写盘，任何能操作这台电脑的人或进程，都可能在你保持认证状态期间用该缓存 PIN 完成未授权认证；自动填/自动提交也可能因输错导致安全密钥被连续锁定。使用本程序即表示你理解并**自行承担全部风险**，包括但不限于未授权认证、认证失败、安全密钥被锁死、数据丢失或财产损失。**仓库作者对因使用本程序而产生的任何后果不承担责任。**
-
-**English**: This program (including PIN caching, PIN auto-fill, and PIN auto-submit) is provided "as is", without warranty of any kind. **Caching a PIN carries inherent risk**: even though the PIN is only ever stored encrypted in memory, anyone who can operate this computer could use it to authenticate without your authorization while you remain authenticated; auto-filling or auto-submitting could also lock out the security key after too many wrong entries. By using this program you **assume all risk**, including but not limited to unauthorized authentication, authentication failures, a locked-out security key, data loss, or financial damage. **The repository author accepts no responsibility for any consequence of using this program.**
+> [!WARNING]
+> **中文**：本程序（包括 PIN 缓存、自动填 PIN、自动提交 PIN）按「现状」提供，不附带任何保证。**缓存 PIN 存在固有风险**：即使 PIN 仅加密保存在内存、从不写盘，任何能操作这台电脑的人或进程，都可能在你保持认证状态期间用该缓存 PIN 完成未授权认证；自动填/自动提交也可能因输错导致安全密钥被连续锁定。使用本程序即表示你理解并**自行承担全部风险**，包括但不限于未授权认证、认证失败、安全密钥被锁死、数据丢失或财产损失。**仓库作者对因使用本程序而产生的任何后果不承担责任。**
+>
+> **English**: This program (including PIN caching, PIN auto-fill, and PIN auto-submit) is provided "as is", without warranty of any kind. **Caching a PIN carries inherent risk**: even though the PIN is only ever stored encrypted in memory, anyone who can operate this computer could use it to authenticate without your authorization while you remain authenticated; auto-filling or auto-submitting could also lock out the security key after too many wrong entries. By using this program you **assume all risk**, including but not limited to unauthorized authentication, authentication failures, a locked-out security key, data loss, or financial damage. **The repository author accepts no responsibility for any consequence of using this program.**
 
 ## 构建 / Building
 
@@ -157,3 +164,11 @@ dotnet publish .\PasskeyPick -c Release -r win-x64 -p:PublishSingleFile=true
 **中文**：网站强制新 passkey 只能存在 TPM 或安全密钥上时，可用 [**Create Passkeys Anywhere** 用户脚本](https://github.com/Aldaviva/userscripts/raw/master/create-passkeys-anywhere.user.js)（需 Tampermonkey 等扩展）每次创建时询问存储位置。
 
 **English**: When a website forces new passkeys onto the TPM or a security key, the [**Create Passkeys Anywhere** userscript](https://github.com/Aldaviva/userscripts/raw/master/create-passkeys-anywhere.user.js) (needs Tampermonkey or similar) asks where to store each passkey at creation time.
+
+---
+
+<div align="center">
+
+**Made with ❤ by [f1owkang](https://github.com/f1owkang)**
+
+</div>
